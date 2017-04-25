@@ -76,7 +76,7 @@ public:
     int haloDataRighColStart;
 
 
-    void copyOldToNew();
+    void copyNewToOld();
 
     void scatter();
     void gather();
@@ -86,7 +86,10 @@ public:
     void printMyData();
 
     void waitHaloBlocks();
-    void save();
+
+    void recieveHaloBlocksDomainParams();
+
+    void sendHaloBlocksDomainParams();
 };
 
 

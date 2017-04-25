@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <mpi.h>
+#include <algorithm>
 #include "CPUMatrices.h"
 #include "BasicRoutines.h"
 #include <immintrin.h>
@@ -80,6 +81,11 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
   localDomainParams = (float*) _mm_malloc((frameSizeOfLocal[0])*(frameSizeOfLocal[1])* sizeof(float), DATA_ALIGNMENT);
   localData = (float*) _mm_malloc((frameSizeOfLocal[0])*(frameSizeOfLocal[1])* sizeof(float), DATA_ALIGNMENT);
   localNewData = (float*) _mm_malloc((frameSizeOfLocal[0])*(frameSizeOfLocal[1])* sizeof(float), DATA_ALIGNMENT);
+  std::fill(localDomainMap, localDomainMap + (frameSizeOfLocal[0])*(frameSizeOfLocal[1]), 0);
+  std::fill(localDomainParams, localDomainParams + (frameSizeOfLocal[0])*(frameSizeOfLocal[1]), 0.0);
+  std::fill(localData, localData + (frameSizeOfLocal[0])*(frameSizeOfLocal[1]), 0.0);
+  std::fill(localNewData, localNewData + (frameSizeOfLocal[0])*(frameSizeOfLocal[1]), 0.0);
+
 
   haloTopRowStart = 2;
   haloDataTopRowStart = 2*frameSizeOfLocal[1]+2;
@@ -110,7 +116,7 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
 }
 
 void CPUMatrices::scatter() {
-  MPI_Scatterv(globalArray, sendcounts.data(), displs.data(), subArrFloatType, &(localData[0]), 1, localSubArrFloatType, 0, MPI_COMM_WORLD);
+  MPI_Scatterv(globalArray, sendcounts.data(), displs.data(), subArrFloatType, &(localNewData[0]), 1, localSubArrFloatType, 0, MPI_COMM_WORLD);
   MPI_Scatterv(globalDomainParams, sendcounts.data(), displs.data(), subArrFloatType, &(localDomainParams[0]), 1, localSubArrFloatType, 0, MPI_COMM_WORLD);
   MPI_Scatterv(globalDomainMap, sendcounts.data(), displs.data(), subArrIntType, &(localDomainMap[0]), 1, localSubArrIntType, 0, MPI_COMM_WORLD);
 
@@ -118,55 +124,93 @@ void CPUMatrices::scatter() {
 
 void CPUMatrices::gather() {
   /* it all goes back to process 0 */
-  MPI_Gatherv(&(localData[0]), 1, localSubArrFloatType, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
+  MPI_Gatherv(&(localNewData[0]), 1, localSubArrFloatType, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
 //  MPI_Gatherv(&(localData[0]), widthEdge*heightEdge,  MPI_INT, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
 
-//  if (myRank == 0) {
-//    printf("Processed grid:\n");
-//    for (int i=0; i<edgeSize*edgeSize; i++) {
-//      cout << globalArray[i] << " ";
-//      if(i % edgeSize == edgeSize-1)
-//        cout << endl;
-//    }
-//
-//  }
+  if (myRank == 0) {
+    printf("Processed grid:\n");
+    for (int i=0; i<edgeSize*edgeSize; i++) {
+      cout << globalArray[i] << " ";
+      if(i % edgeSize == edgeSize-1)
+        cout << endl;
+    }
+
+  }
 }
 
 void CPUMatrices::sendHaloBlocks() {
   //send TOP rows
   if(myRow != 0) {
-    MPI_Isend(&(localData[haloDataTopRowStart]), 1, localRows, myTopNeighbour, tagTopRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Isend(&(localNewData[haloDataTopRowStart]), 1, localRows, myTopNeighbour, tagTopRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
   //send BOTTOM rows
   if (myRow != heightProcs-1) {
-    MPI_Isend(&(localData[haloDataBottomRowStar]), 1, localRows, myBottomNeighbour, tagBottomRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Isend(&(localNewData[haloDataBottomRowStar]), 1, localRows, myBottomNeighbour, tagBottomRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
 //  //Send LEFT col
   if (myCol != 0 ) {
-    MPI_Isend(&(localData[haloDataLeftColStart]), 1, localCols, myLeftNeighbour, tagLeftCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Isend(&(localNewData[haloDataLeftColStart]), 1, localCols, myLeftNeighbour, tagLeftCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
   //Send RIGHT col
   if (myCol != widthProcs-1 ) {
-    MPI_Isend(&(localData[haloDataRighColStart]), 1, localCols, myRightNeighbour, tagRightCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Isend(&(localNewData[haloDataRighColStart]), 1, localCols, myRightNeighbour, tagRightCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
 }
 
 void CPUMatrices::recieveHaloBlocks() {
   //recieve BOTTOM rows
   if (myRow != heightProcs-1) {
-    MPI_Irecv(&(localData[haloBottomRowStart]), 1, localRows, myBottomNeighbour, tagTopRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Irecv(&(localNewData[haloBottomRowStart]), 1, localRows, myBottomNeighbour, tagTopRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
   //recieve TOP rows
   if (myRow != 0) {
-    MPI_Irecv(&(localData[haloTopRowStart]), 1, localRows, myTopNeighbour, tagBottomRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Irecv(&(localNewData[haloTopRowStart]), 1, localRows, myTopNeighbour, tagBottomRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
 //  //Recv RIGHT col
   if (myCol != widthProcs-1 ) {
-    MPI_Irecv(&(localData[haloRightColStart]), 1, localCols, myRightNeighbour, tagLeftCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Irecv(&(localNewData[haloRightColStart]), 1, localCols, myRightNeighbour, tagLeftCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
   //Recv LEFT col
   if (myCol != 0 ) {
-    MPI_Irecv(&(localData[haloLeftColStart]), 1, localCols, myLeftNeighbour, tagRightCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+    MPI_Irecv(&(localNewData[haloLeftColStart]), 1, localCols, myLeftNeighbour, tagRightCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+}
+
+void CPUMatrices::sendHaloBlocksDomainParams() {
+  //send TOP rows
+  if(myRow != 0) {
+    MPI_Isend(&(localDomainParams[haloDataTopRowStart]), 1, localRows, myTopNeighbour, tagTopRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+  //send BOTTOM rows
+  if (myRow != heightProcs-1) {
+    MPI_Isend(&(localDomainParams[haloDataBottomRowStar]), 1, localRows, myBottomNeighbour, tagBottomRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+//  //Send LEFT col
+  if (myCol != 0 ) {
+    MPI_Isend(&(localDomainParams[haloDataLeftColStart]), 1, localCols, myLeftNeighbour, tagLeftCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+  //Send RIGHT col
+  if (myCol != widthProcs-1 ) {
+    MPI_Isend(&(localDomainParams[haloDataRighColStart]), 1, localCols, myRightNeighbour, tagRightCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+}
+
+void CPUMatrices::recieveHaloBlocksDomainParams() {
+  //recieve BOTTOM rows
+  if (myRow != heightProcs-1) {
+    MPI_Irecv(&(localDomainParams[haloBottomRowStart]), 1, localRows, myBottomNeighbour, tagTopRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+  //recieve TOP rows
+  if (myRow != 0) {
+    MPI_Irecv(&(localDomainParams[haloTopRowStart]), 1, localRows, myTopNeighbour, tagBottomRows, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+//  //Recv RIGHT col
+  if (myCol != widthProcs-1 ) {
+    MPI_Irecv(&(localDomainParams[haloRightColStart]), 1, localCols, myRightNeighbour, tagLeftCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
+  }
+  //Recv LEFT col
+  if (myCol != 0 ) {
+    MPI_Irecv(&(localDomainParams[haloLeftColStart]), 1, localCols, myLeftNeighbour, tagRightCols, MPI_COMM_WORLD, &requests[requestsCounter++]);
   }
 }
 
@@ -199,14 +243,9 @@ void CPUMatrices::printMyData() {
   }
 }
 
-void CPUMatrices::save() {
-
+void CPUMatrices::copyNewToOld() {
+  memcpy(localData, localNewData, (frameSizeOfLocal[0])*(frameSizeOfLocal[1])*sizeof(float));
 }
-
-void CPUMatrices::copyOldToNew() {
-  memcpy(localNewData, localData, (frameSizeOfLocal[0])*(frameSizeOfLocal[1])*sizeof(float));
-}
-
 
 
 

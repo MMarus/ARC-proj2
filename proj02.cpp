@@ -321,22 +321,18 @@ void ParallelHeatDistribution(float                     *parResult,
           if(file_id < 0) ios::failure("Cannot create output file");
       }
   }
-  
-  
+
   //--------------------------------------------------------------------------//
   //---------------- THE SECTION WHERE STUDENTS MAY ADD CODE -----------------//
   //--------------------------------------------------------------------------//
+
   CPUMatrices cpuMatrices(size, parameters.edgeSize, rank);
 
+  // [3] Init arrays
   if(rank == 0){
-    cout << "H " <<cpuMatrices.heightEdge << " W "<< cpuMatrices.widthEdge << " " << endl;
-
-    // [3] Init arrays
     for (size_t i = 0; i < materialProperties.nGridPoints; i++)
     {
-
       parResult[i] = materialProperties.initTemp[i];
-//      parResult[i] = i / (cpuMatrices.widthEdge * cpuMatrices.heightEdge * cpuMatrices.widthProcs) +i / (cpuMatrices.widthEdge) % cpuMatrices.widthProcs;
       cout << parResult[i] << " ";
       if(i % parameters.edgeSize == parameters.edgeSize-1)
         cout << endl;
@@ -346,30 +342,118 @@ void ParallelHeatDistribution(float                     *parResult,
     cpuMatrices.globalDomainParams = materialProperties.domainParams;
   }
 
-
   cpuMatrices.scatter();
   cpuMatrices.sendHaloBlocks();
   cpuMatrices.recieveHaloBlocks();
   cpuMatrices.waitHaloBlocks();
+  cpuMatrices.sendHaloBlocksDomainParams();
+  cpuMatrices.recieveHaloBlocksDomainParams();
+  cpuMatrices.waitHaloBlocks();
 
-  //Copy data to newData
-  cpuMatrices.copyOldToNew();
+  cpuMatrices.copyNewToOld();
 
-
-  cpuMatrices.printMyData();
-
+  size_t iteration;
+  float middleColAvgTemp = 0.0f;
+  size_t printCounter = 1;
 
   //Meranie   //Ulozim cas pre vypocet dlzky behu
   if(rank == 0)
     cpuMatrices.elapsedTime = - MPI_Wtime(); /*zaciatok*/
 
-  for(int iteration = 0; iteration < parameters.nIterations; iteration++) {
-    cpuMatrices.sendHaloBlocks();
+  int startPointCol = (cpuMatrices.myCol == 0) ? 4 : 2;
+  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
+  int startPointRow = (cpuMatrices.myCol == 0) ? 4 : 2;
+  int endPointRow = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
+
+
+  for (iteration = 0; iteration < parameters.nIterations; iteration++) {
     cpuMatrices.recieveHaloBlocks();
 
-    //vypocet
+    //Calculate TOP rows
+    if(cpuMatrices.myRow != 0) {
+      int startPoint = (cpuMatrices.myCol == 0) ? 4 : 2;
+      int endPoint = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
+      for (size_t i = 2; i < 4; ++i) {
+        for (size_t j = startPoint; j < endPoint; ++j) {
+          ComputePoint(cpuMatrices.localData,
+                       cpuMatrices.localNewData,
+                       cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap,
+                       i, j,
+                       cpuMatrices.frameSizeOfLocal[1],
+                       parameters.airFlowRate,
+                       materialProperties.coolerTemp);
+        }
+      }
+    }
+    //Calculate BOTTOM rows
+    if (cpuMatrices.myRow != cpuMatrices.heightProcs-1) {
+      int startPoint = (cpuMatrices.myCol == 0) ? 4 : 2;
+      int endPoint = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
+      for (size_t i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge+2; ++i) {
+        for (size_t j = startPoint; j < endPoint; ++j) {
+          ComputePoint(cpuMatrices.localData,
+                       cpuMatrices.localNewData,
+                       cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap,
+                       i, j,
+                       cpuMatrices.frameSizeOfLocal[1],
+                       parameters.airFlowRate,
+                       materialProperties.coolerTemp);
+        }
+      }
+    }
+    //Calculate LEFT col
+    if (cpuMatrices.myCol != 0 ) {
+      for (size_t i = (cpuMatrices.myRow == 0) ? 4 : 2;
+           i < ((cpuMatrices.myRow == cpuMatrices.heightProcs-1) ? 0 : 2) + cpuMatrices.heightEdge; ++i) {
+        for (size_t j = 2; j < 4; ++j) {
+          ComputePoint(cpuMatrices.localData,
+                       cpuMatrices.localNewData,
+                       cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap,
+                       i, j,
+                       cpuMatrices.frameSizeOfLocal[1],
+                       parameters.airFlowRate,
+                       materialProperties.coolerTemp);
+        }
+      }
+    }
+    //Calculate RIGHT col
+    if (cpuMatrices.myCol != cpuMatrices.widthProcs-1 ) {
+      for (size_t i = (cpuMatrices.myRow == 0) ? 4 : 2;
+           i < ((cpuMatrices.myRow == cpuMatrices.heightProcs-1) ? 0 : 2) + cpuMatrices.heightEdge; ++i) {
+        for (size_t j = cpuMatrices.widthEdge; j < 2+cpuMatrices.widthEdge; ++j) {
+          ComputePoint(cpuMatrices.localData,
+                       cpuMatrices.localNewData,
+                       cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap,
+                       i, j,
+                       cpuMatrices.frameSizeOfLocal[1],
+                       parameters.airFlowRate,
+                       materialProperties.coolerTemp);
+        }
+      }
+    }
+
+    cpuMatrices.sendHaloBlocks();
+
+    //calculate inner tile
+    for (size_t i = 4; i < cpuMatrices.frameSizeOfLocal[0] - 4; ++i) {
+      for (size_t j = 4; j < cpuMatrices.frameSizeOfLocal[1] - 4; ++j) {
+        ComputePoint(cpuMatrices.localData,
+                     cpuMatrices.localNewData,
+                     cpuMatrices.localDomainParams,
+                     cpuMatrices.localDomainMap,
+                     i, j,
+                     cpuMatrices.frameSizeOfLocal[1],
+                     parameters.airFlowRate,
+                     materialProperties.coolerTemp);
+      }
+    }
 
     cpuMatrices.waitHaloBlocks();
+    cpuMatrices.printMyData();
 
     //ZAPIS DO SUBORU
     // Doporuceny zpusob ukladani dat do vystupniho souboru
@@ -380,6 +464,8 @@ void ParallelHeatDistribution(float                     *parResult,
         // Serial I/O
         // store data to root
         // *** Zde posbirejte data do 0. procesu, ktery vytvarel vystupni soubor ***
+        //TODO: vyskusaj odstranit ci to bude fungovat
+        MPI_Barrier(MPI_COMM_WORLD);
         cpuMatrices.gather();
         // store time step in the output file if necessary
         if (rank == 0 && file_id != H5I_INVALID_HID) {
@@ -389,37 +475,27 @@ void ParallelHeatDistribution(float                     *parResult,
                             iteration / parameters.diskWriteIntensity,
                             iteration);
         }
-      } else {
+      }
+      else {
         // Parallel I/O
         if (file_id != H5I_INVALID_HID) {
           StoreDataIntoFileParallel(file_id,
-                                    cpuMatrices.localNewData,
+                                    cpuMatrices.localData,
                                     materialProperties.edgeSize,
-                                    cpuMatrices.widthEdge, cpuMatrices.heightEdge,
-                                    (cpuMatrices.widthEdge - 4) * cpuMatrices.myCol, (cpuMatrices.heightEdge - 4) * cpuMatrices.myRow,
+                                    cpuMatrices.widthEdge+4, cpuMatrices.heightEdge+4,
+                                    (cpuMatrices.widthEdge) * cpuMatrices.myCol, (cpuMatrices.heightEdge) * cpuMatrices.myRow,
                                     iteration / parameters.diskWriteIntensity, iteration);
         }
       }
     }
+
+    swap(cpuMatrices.localNewData, cpuMatrices.localData);
 
   }
 
   //Meranie
   if(rank == 0)
     cpuMatrices.elapsedTime += MPI_Wtime(); /*Konec*/
-
-
-  //vypocet velkosti dlazdic
-
-  //distribucia dat procesorom
-
-
-//  double a[20];
-//  MPI_Datatype myType;
-//  MPI_Type_vector(4, 3, 5, MPI_DOUBLE, &myType);
-//  MPI_Type_commit(&myType);
-////  MPI_Send(&a[0], 1, myType, dst, ...);
-//  MPI_Type_free(&myType);
 
   // close the output file
   if (file_id != H5I_INVALID_HID) H5Fclose(file_id);
