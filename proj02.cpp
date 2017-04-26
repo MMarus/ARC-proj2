@@ -312,19 +312,43 @@ void ParallelHeatDistribution(float *parResult,
   //--------------------------------------------------------------------------//
   //---------------- THE SECTION WHERE STUDENTS MAY ADD CODE -----------------//
   //--------------------------------------------------------------------------//
+  // t+1 values
+  float *newTemp;
+  // t - values
+  float *oldTemp;
+  size_t iteration;
+  size_t i, j;
+  float middleColAvgTemp = 0.0f;
+  size_t printCounter = 1;
+  double elapsedTime;
 
   CPUMatrices cpuMatrices(size, parameters.edgeSize, rank);
 
+  int startPointCol = (cpuMatrices.myCol == 0) ? 4 : 2;
+  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs - 1) ? cpuMatrices.widthEdge : 2 + cpuMatrices.widthEdge;
+  int startPointRow = (cpuMatrices.myRow == 0) ? 4 : 2;
+  int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 + cpuMatrices.heightEdge;
+
+#pragma omp parallel firstprivate(printCounter) private(iteration)
+{
   // [3] Init arrays
   if (rank == 0) {
-    for (size_t i = 0; i < materialProperties.nGridPoints; i++) {
+#pragma omp for simd
+    for (i = 0; i < materialProperties.nGridPoints; i++) {
       parResult[i] = materialProperties.initTemp[i];
     }
+#pragma omp master
+{
     cpuMatrices.globalArray = parResult;
+    newTemp = cpuMatrices.localNewData;
+    oldTemp = cpuMatrices.localData;
     cpuMatrices.globalDomainMap = materialProperties.domainMap;
     cpuMatrices.globalDomainParams = materialProperties.domainParams;
+}
   }
 
+#pragma omp master
+{
   cpuMatrices.scatter();
   cpuMatrices.sendHaloBlocks();
   cpuMatrices.recieveHaloBlocks();
@@ -335,34 +359,25 @@ void ParallelHeatDistribution(float *parResult,
 
   cpuMatrices.copyNewToOld();
 
-  size_t iteration;
-  float middleColAvgTemp = 0.0f;
-  size_t printCounter = 1;
-
-
-
-  int startPointCol = (cpuMatrices.myCol == 0) ? 4 : 2;
-  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs - 1) ? cpuMatrices.widthEdge : 2 + cpuMatrices.widthEdge;
-  int startPointRow = (cpuMatrices.myRow == 0) ? 4 : 2;
-  int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 + cpuMatrices.heightEdge;
-
   if (!parameters.batchMode && rank == 0)
     printf("Starting parallel simulation... \n");
 
   //Meranie   //Ulozim cas pre vypocet dlzky behu
-  double elapsedTime;
+
   if (rank == 0)
     elapsedTime = MPI_Wtime();
+}
 
-  
+
   for (iteration = 0; iteration < parameters.nIterations; iteration++) {
+#pragma omp master
     cpuMatrices.recieveHaloBlocks();
-
     //Calculate TOP rows
     if (cpuMatrices.myRow != 0) {
-      for (size_t i = 2; i < 4; ++i) {
-        for (size_t j = startPointCol; j < endPointCol; ++j) {
-          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+      for (i = 2; i < 4; ++i) {
+        for (j = startPointCol; j < endPointCol; ++j) {
+          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
                        cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
@@ -370,9 +385,10 @@ void ParallelHeatDistribution(float *parResult,
     }
     //Calculate BOTTOM rows
     if (cpuMatrices.myRow != cpuMatrices.heightProcs - 1) {
-      for (size_t i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge + 2; ++i) {
-        for (size_t j = startPointCol; j < endPointCol; ++j) {
-          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+      for (i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge + 2; ++i) {
+        for (j = startPointCol; j < endPointCol; ++j) {
+          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
                        cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
@@ -381,9 +397,10 @@ void ParallelHeatDistribution(float *parResult,
     }
     //Calculate LEFT col
     if (cpuMatrices.myCol != 0) {
-      for (size_t i = startPointRow; i < endPointRow; ++i) {
-        for (size_t j = 2; j < 4; ++j) {
-          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+      for (i = startPointRow; i < endPointRow; ++i) {
+        for (j = 2; j < 4; ++j) {
+          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
                        cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
@@ -392,9 +409,10 @@ void ParallelHeatDistribution(float *parResult,
     }
     //Calculate RIGHT col
     if (cpuMatrices.myCol != cpuMatrices.widthProcs - 1) {
-      for (size_t i = startPointRow; i < endPointRow; ++i) {
-        for (size_t j = cpuMatrices.widthEdge; j < 2 + cpuMatrices.widthEdge; ++j) {
-          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+      for (i = startPointRow; i < endPointRow; ++i) {
+        for (j = cpuMatrices.widthEdge; j < 2 + cpuMatrices.widthEdge; ++j) {
+          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
                        cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
@@ -402,13 +420,15 @@ void ParallelHeatDistribution(float *parResult,
 
     }
 
+#pragma omp master
     cpuMatrices.sendHaloBlocks();
 
     //calculate inner tile
-    for (size_t i = 4; i < cpuMatrices.frameSizeOfLocal[0] - 4; ++i) {
-      for (size_t j = 4; j < cpuMatrices.frameSizeOfLocal[1] - 4; ++j) {
-        ComputePoint(cpuMatrices.localData,
-                     cpuMatrices.localNewData,
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+    for (i = 4; i < cpuMatrices.frameSizeOfLocal[0] - 4; ++i) {
+      for (j = 4; j < cpuMatrices.frameSizeOfLocal[1] - 4; ++j) {
+        ComputePoint(oldTemp,
+                     newTemp,
                      cpuMatrices.localDomainParams,
                      cpuMatrices.localDomainMap,
                      i, j,
@@ -418,6 +438,8 @@ void ParallelHeatDistribution(float *parResult,
       }
     }
 
+#pragma omp master
+{
     cpuMatrices.waitHaloBlocks();
 
     // [b] Compute the average temperature in the middle column
@@ -425,7 +447,7 @@ void ParallelHeatDistribution(float *parResult,
       middleColAvgTemp = 0.0f;
       if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2) {
         for (int i = 2; i < cpuMatrices.heightEdge+2; i++)
-          middleColAvgTemp += cpuMatrices.localNewData[i * cpuMatrices.frameSizeOfLocal[1] + cpuMatrices.middleColOffset];
+          middleColAvgTemp += newTemp[i * cpuMatrices.frameSizeOfLocal[1] + cpuMatrices.middleColOffset];
       }
       MPI_Reduce(&middleColAvgTemp, &cpuMatrices.middleColAverageRoot,
                  1, MPI_FLOAT, MPI_SUM, 0, cpuMatrices.middleColComm);
@@ -470,7 +492,7 @@ void ParallelHeatDistribution(float *parResult,
         // Parallel I/O
         if (file_id != H5I_INVALID_HID) {
           StoreDataIntoFileParallel(file_id,
-                                    cpuMatrices.localNewData,
+                                    newTemp,
                                     materialProperties.edgeSize,
                                     cpuMatrices.widthEdge + 4, cpuMatrices.heightEdge + 4,
                                     (cpuMatrices.widthEdge) * cpuMatrices.myCol,
@@ -480,9 +502,11 @@ void ParallelHeatDistribution(float *parResult,
       }
     }
 
-    swap(cpuMatrices.localNewData, cpuMatrices.localData);
-
+    swap(newTemp, oldTemp);
+}
   }
+}//Koniec pragma parallel
+
   cpuMatrices.gather();
 
   //Meranie
@@ -496,9 +520,6 @@ void ParallelHeatDistribution(float *parResult,
              cpuMatrices.middleColAverageRoot, totalTime,
              totalTime / parameters.nIterations);
   }
-
-
-
 
   // close the output file
   if (file_id != H5I_INVALID_HID) H5Fclose(file_id);
