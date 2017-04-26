@@ -313,7 +313,7 @@ void ParallelHeatDistribution(float *parResult,
   //---------------- THE SECTION WHERE STUDENTS MAY ADD CODE -----------------//
   //--------------------------------------------------------------------------//
   size_t iteration;
-  size_t i, j;
+  size_t i,j;
   float middleColAvgTemp = 0.0f;
   float middleColAverageRoot = 0.0f;
   size_t printCounter = 1;
@@ -329,18 +329,22 @@ void ParallelHeatDistribution(float *parResult,
   oldTemp = cpuMatrices.localData;
 
   int startPointCol = (cpuMatrices.myCol == 0) ? 4 : 2;
-  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs - 1) ? cpuMatrices.widthEdge : 2 +
-                                                                                                cpuMatrices.widthEdge;
+  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs - 1) ? cpuMatrices.widthEdge : 2 + cpuMatrices.widthEdge;
   int startPointRow = (cpuMatrices.myRow == 0) ? 4 : 2;
-  int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 +
-                                                                                                  cpuMatrices.heightEdge;
-  // [3] Init arrays
+  int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 + cpuMatrices.heightEdge;
+
+#pragma omp parallel firstprivate(printCounter) private(iteration) private(middleColAverageRoot)
+{
+
+    // [3] Init arrays
   if (rank == 0) {
+#pragma omp for simd
     for (i = 0; i < materialProperties.nGridPoints; i++) {
       parResult[i] = materialProperties.initTemp[i];
     }
   }
-
+#pragma omp master
+{
   cpuMatrices.scatter();
   cpuMatrices.sendHaloBlocks();
   cpuMatrices.recieveHaloBlocks();
@@ -357,12 +361,15 @@ void ParallelHeatDistribution(float *parResult,
   if (rank == 0)
     elapsedTime = MPI_Wtime();
 
+}// konec pragma omp master
 
   for (iteration = 0; iteration < parameters.nIterations; iteration++) {
+#pragma omp master
     cpuMatrices.recieveHaloBlocks();
 
     //Calculate TOP rows
     if (cpuMatrices.myRow != 0) {
+#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
       for (i = 2; i < 4; ++i) {
         for (j = startPointCol; j < endPointCol; ++j) {
           ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
@@ -373,6 +380,7 @@ void ParallelHeatDistribution(float *parResult,
     }
     //Calculate BOTTOM rows
     if (cpuMatrices.myRow != cpuMatrices.heightProcs - 1) {
+#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
       for (i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge + 2; ++i) {
         for (j = startPointCol; j < endPointCol; ++j) {
           ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
@@ -384,6 +392,7 @@ void ParallelHeatDistribution(float *parResult,
     }
     //Calculate LEFT col
     if (cpuMatrices.myCol != 0) {
+#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
       for (i = startPointRow; i < endPointRow; ++i) {
         for (j = 2; j < 4; ++j) {
           ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
@@ -395,6 +404,7 @@ void ParallelHeatDistribution(float *parResult,
     }
     //Calculate RIGHT col
     if (cpuMatrices.myCol != cpuMatrices.widthProcs - 1) {
+#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
       for (i = startPointRow; i < endPointRow; ++i) {
         for (j = cpuMatrices.widthEdge; j < 2 + cpuMatrices.widthEdge; ++j) {
           ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
@@ -404,8 +414,11 @@ void ParallelHeatDistribution(float *parResult,
       }
 
     }
+#pragma omp master
     cpuMatrices.sendHaloBlocks();
 
+    //calculate inner tile
+#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
     for (i = 4; i < cpuMatrices.frameSizeOfLocal[0] - 4; ++i) {
       for (j = 4; j < cpuMatrices.frameSizeOfLocal[1] - 4; ++j) {
         ComputePoint(oldTemp,
@@ -418,30 +431,39 @@ void ParallelHeatDistribution(float *parResult,
                      materialProperties.coolerTemp);
       }
     }
+#pragma omp master
+    {
+      cpuMatrices.waitHaloBlocks();
+      middleColAvgTemp = 0.0f;
 
-    cpuMatrices.waitHaloBlocks();
-    middleColAvgTemp = 0.0f;
-
-    if (rank == 0) {
-      middleColAverageRoot = 0.0f;
+      if(rank == 0){
+        middleColAverageRoot = 0.0f;
+      }
     }
-
+#pragma omp barrier
     // [b] Compute the average temperature in the middle column
     if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2 || rank == 0) {
       if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2) {
-        for (int i = 2; i < cpuMatrices.heightEdge + 2; i++)
+#pragma omp for simd reduction(+:middleColAvgTemp)
+        for (int i = 2; i < cpuMatrices.heightEdge+2; i++)
           middleColAvgTemp += newTemp[i * cpuMatrices.frameSizeOfLocal[1] + cpuMatrices.middleColOffset];
       }
-      MPI_Reduce(&middleColAvgTemp, &middleColAverageRoot, 1, MPI_FLOAT, MPI_SUM, 0, cpuMatrices.middleColComm);
+#pragma omp barrier
+
+//#pragma omp master
+//      MPI_Reduce(&middleColAvgTemp, &middleColAverageRoot, 1, MPI_FLOAT, MPI_SUM, 0, cpuMatrices.middleColComm);
     }
 
-    if (rank == 0) {
+#pragma omp master
+{
+    if(rank == 0){
       middleColAverageRoot /= materialProperties.edgeSize;
       // [e] Print progress and average temperature of the middle column
-      if (((float) (iteration) >= (parameters.nIterations - 1) / 10.0f * (float) printCounter)
-          && !parameters.batchMode) {
+      if ( ((float)(iteration) >= (parameters.nIterations-1) / 10.0f * (float)printCounter)
+           && !parameters.batchMode)
+      {
         printf("Progress %ld%% (Average Temperature %.2f degrees)\n",
-               (iteration + 1) * 100L / (parameters.nIterations),
+               (iteration+1) * 100L / (parameters.nIterations),
                middleColAverageRoot);
         ++printCounter;
       }
@@ -486,14 +508,16 @@ void ParallelHeatDistribution(float *parResult,
     swap(newTemp, oldTemp);
     //Need this because the cpuMatrices does have different pointers which are used to send data and recieve data
     swap(cpuMatrices.localNewData, cpuMatrices.localData);
+}//Koniec master pragma
 
   }
 
+}//Koniec pragma parallel
 
   cpuMatrices.gather();
 
   //Meranie
-  if (rank == 0) {
+  if (rank == 0){
     double totalTime = MPI_Wtime() - elapsedTime;
     // [7] Print final result
     if (!parameters.batchMode)

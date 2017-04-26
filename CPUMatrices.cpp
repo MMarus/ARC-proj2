@@ -120,7 +120,7 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
   MPI_Comm_create(MPI_COMM_WORLD, new_group, &middleColComm);
   MPI_Comm_rank(MPI_COMM_WORLD, &middleColMyRank);
   MPI_Comm_size(MPI_COMM_WORLD, &middleColSize);
-  middleColAverageRoot = 0;
+  middleColAverageRoot = 0.0f;
   middleColOffset = (numOfCpus > 2) ? 2 : (2 + widthEdge/2);
 
   sendcounts.resize(numOfCpus);
