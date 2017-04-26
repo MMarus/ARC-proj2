@@ -60,6 +60,14 @@ public:
     MPI_Status statuses[8];
     int requestsCounter = 0;
 
+    MPI_Group old_group;
+    MPI_Group new_group;
+    MPI_Comm middleColComm;
+    int middleColSize;
+    int middleColMyRank;
+    float middleColAverageRoot;
+    int middleColOffset;
+
     int tagTopRows = 5;
     int tagBottomRows = 6;
     int tagLeftCols = 7;

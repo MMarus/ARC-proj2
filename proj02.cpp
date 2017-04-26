@@ -61,23 +61,23 @@ TMaterialProperties materialProperties;
 //----------------------------------------------------------------------------//
 
 /// Sequential implementation of the Heat distribution
-void SequentialHeatDistribution(float                     *seqResult,
+void SequentialHeatDistribution(float *seqResult,
                                 const TMaterialProperties &materialProperties,
-                                const TParameters         &parameters,
-                                string                     outputFileName);
+                                const TParameters &parameters,
+                                string outputFileName);
 
 /// Parallel Implementation of the Heat distribution (Non-overlapped file output)
-void ParallelHeatDistribution(float                     *parResult,
+void ParallelHeatDistribution(float *parResult,
                               const TMaterialProperties &materialProperties,
-                              const TParameters         &parameters,
-                              string                     outputFileName);
+                              const TParameters &parameters,
+                              string outputFileName);
 
 /// Store time step into output file
-void StoreDataIntoFile(hid_t         h5fileId,
-                       const float * data,
-                       const size_t  edgeSize,
-                       const size_t  snapshotId,
-                       const size_t  iteration);
+void StoreDataIntoFile(hid_t h5fileId,
+                       const float *data,
+                       const size_t edgeSize,
+                       const size_t snapshotId,
+                       const size_t iteration);
 
 /// Store time step into output file using parallel HDF5
 void StoreDataIntoFileParallel(hid_t h5fileId,
@@ -94,41 +94,40 @@ void StoreDataIntoFileParallel(hid_t h5fileId,
 //----------------------------------------------------------------------------//
 
 
-void ComputePoint(float  *oldTemp,
-                  float  *newTemp,
-                  float  *params,
-                  int    *map,
-                  size_t  i,
-                  size_t  j,
-                  size_t  edgeSize,
-                  float   airFlowRate,
-                  float   coolerTemp)
-{
+void ComputePoint(float *oldTemp,
+                  float *newTemp,
+                  float *params,
+                  int *map,
+                  size_t i,
+                  size_t j,
+                  size_t edgeSize,
+                  float airFlowRate,
+                  float coolerTemp) {
   // [i] Calculate neighbor indices
-  const int center    = i * edgeSize + j;
-  const int top[2]    = { center - (int)edgeSize, center - 2*(int)edgeSize };
-  const int bottom[2] = { center + (int)edgeSize, center + 2*(int)edgeSize };
-  const int left[2]   = { center - 1, center - 2};
-  const int right[2]  = { center + 1, center + 2};
+  const int center = i * edgeSize + j;
+  const int top[2] = {center - (int) edgeSize, center - 2 * (int) edgeSize};
+  const int bottom[2] = {center + (int) edgeSize, center + 2 * (int) edgeSize};
+  const int left[2] = {center - 1, center - 2};
+  const int right[2] = {center + 1, center + 2};
 
   // [ii] The reciprocal value of the sum of domain parameters for normalization
-  const float frac = 1.0f / (params[top[0]]    + params[top[1]]    +
+  const float frac = 1.0f / (params[top[0]] + params[top[1]] +
                              params[bottom[0]] + params[bottom[1]] +
-                             params[left[0]]   + params[left[1]]   +
-                             params[right[0]]  + params[right[1]]  +
+                             params[left[0]] + params[left[1]] +
+                             params[right[0]] + params[right[1]] +
                              params[center]);
 
   // [iii] Calculate new temperature in the grid point
-  float pointTemp = 
-        oldTemp[top[0]]    * params[top[0]]    * frac +
-        oldTemp[top[1]]    * params[top[1]]    * frac +
-        oldTemp[bottom[0]] * params[bottom[0]] * frac +
-        oldTemp[bottom[1]] * params[bottom[1]] * frac +
-        oldTemp[left[0]]   * params[left[0]]   * frac +
-        oldTemp[left[1]]   * params[left[1]]   * frac +
-        oldTemp[right[0]]  * params[right[0]]  * frac +
-        oldTemp[right[1]]  * params[right[1]]  * frac +
-        oldTemp[center]    * params[center]    * frac;
+  float pointTemp =
+      oldTemp[top[0]] * params[top[0]] * frac +
+      oldTemp[top[1]] * params[top[1]] * frac +
+      oldTemp[bottom[0]] * params[bottom[0]] * frac +
+      oldTemp[bottom[1]] * params[bottom[1]] * frac +
+      oldTemp[left[0]] * params[left[0]] * frac +
+      oldTemp[left[1]] * params[left[1]] * frac +
+      oldTemp[right[0]] * params[right[0]] * frac +
+      oldTemp[right[1]] * params[right[1]] * frac +
+      oldTemp[center] * params[center] * frac;
 
   // [iv] Remove some of the heat due to air flow (5% of the new air)
   pointTemp = (map[center] == 0)
@@ -146,21 +145,19 @@ void ComputePoint(float  *oldTemp,
  * @param [in]  outputFileName     - Output file name (if NULL string, do not store)
  *
  */
-void SequentialHeatDistribution(float                      *seqResult,
+void SequentialHeatDistribution(float *seqResult,
                                 const TMaterialProperties &materialProperties,
-                                const TParameters         &parameters,
-                                string                     outputFileName)
-{
+                                const TParameters &parameters,
+                                string outputFileName) {
   // [1] Create a new output hdf5 file
   hid_t file_id = H5I_INVALID_HID;
-  
-  if (outputFileName != "")
-  {
+
+  if (outputFileName != "") {
     if (outputFileName.find(".h5") == string::npos)
       outputFileName.append("_seq.h5");
     else
       outputFileName.insert(outputFileName.find_last_of("."), "_seq");
-    
+
     file_id = H5Fcreate(outputFileName.c_str(),
                         H5F_ACC_TRUNC,
                         H5P_DEFAULT,
@@ -170,12 +167,11 @@ void SequentialHeatDistribution(float                      *seqResult,
 
 
   // [2] A temporary array is needed to prevent mixing of data form step t and t+1
-  float *tempArray = (float *)_mm_malloc(materialProperties.nGridPoints * 
-                                         sizeof(float), DATA_ALIGNMENT);
+  float *tempArray = (float *) _mm_malloc(materialProperties.nGridPoints *
+                                          sizeof(float), DATA_ALIGNMENT);
 
   // [3] Init arrays
-  for (size_t i = 0; i < materialProperties.nGridPoints; i++)
-  {
+  for (size_t i = 0; i < materialProperties.nGridPoints; i++) {
     tempArray[i] = materialProperties.initTemp[i];
     seqResult[i] = materialProperties.initTemp[i];
   }
@@ -184,9 +180,9 @@ void SequentialHeatDistribution(float                      *seqResult,
   float *newTemp = seqResult;
   float *oldTemp = tempArray;
 
-  if (!parameters.batchMode) 
+  if (!parameters.batchMode)
     printf("Starting sequential simulation... \n");
-  
+
   //---------------------- [5] start the stop watch ------------------------------//
   double elapsedTime = MPI_Wtime();
   size_t i, j;
@@ -195,8 +191,7 @@ void SequentialHeatDistribution(float                      *seqResult,
   size_t printCounter = 1;
 
   // [6] Start the iterative simulation
-  for (iteration = 0; iteration < parameters.nIterations; iteration++)
-  {
+  for (iteration = 0; iteration < parameters.nIterations; iteration++) {
     // [a] calculate one iteration of the heat distribution (skip the grid points at the edges)
     for (i = 2; i < materialProperties.edgeSize - 2; i++)
       for (j = 2; j < materialProperties.edgeSize - 2; j++)
@@ -212,13 +207,12 @@ void SequentialHeatDistribution(float                      *seqResult,
     // [b] Compute the average temperature in the middle column
     middleColAvgTemp = 0.0f;
     for (i = 0; i < materialProperties.edgeSize; i++)
-      middleColAvgTemp += newTemp[i*materialProperties.edgeSize +
-                          materialProperties.edgeSize/2];
+      middleColAvgTemp += newTemp[i * materialProperties.edgeSize +
+                                  materialProperties.edgeSize / 2];
     middleColAvgTemp /= materialProperties.edgeSize;
 
     // [c] Store time step in the output file if necessary
-    if ((file_id != H5I_INVALID_HID)  && ((iteration % parameters.diskWriteIntensity) == 0))
-    {
+    if ((file_id != H5I_INVALID_HID) && ((iteration % parameters.diskWriteIntensity) == 0)) {
       StoreDataIntoFile(file_id,
                         newTemp,
                         materialProperties.edgeSize,
@@ -230,11 +224,10 @@ void SequentialHeatDistribution(float                      *seqResult,
     swap(newTemp, oldTemp);
 
     // [e] Print progress and average temperature of the middle column
-    if ( ((float)(iteration) >= (parameters.nIterations-1) / 10.0f * (float)printCounter) 
-        && !parameters.batchMode)
-    {
-      printf("Progress %ld%% (Average Temperature %.2f degrees)\n", 
-             (iteration+1) * 100L / (parameters.nIterations), 
+    if (((float) (iteration) >= (parameters.nIterations - 1) / 10.0f * (float) printCounter)
+        && !parameters.batchMode) {
+      printf("Progress %ld%% (Average Temperature %.2f degrees)\n",
+             (iteration + 1) * 100L / (parameters.nIterations),
              middleColAvgTemp);
       ++printCounter;
     }
@@ -248,8 +241,8 @@ void SequentialHeatDistribution(float                      *seqResult,
     printf("\nExecution time of sequential version %.5f\n", totalTime);
   else
     printf("%s;%s;%f;%e;%e\n", outputFileName.c_str(), "seq",
-                               middleColAvgTemp, totalTime,
-                               totalTime / parameters.nIterations);   
+           middleColAvgTemp, totalTime,
+           totalTime / parameters.nIterations);
 
   // Close the output file
   if (file_id != H5I_INVALID_HID) H5Fclose(file_id);
@@ -271,55 +264,49 @@ void SequentialHeatDistribution(float                      *seqResult,
  *
  * @note This is the function that students should implement.                                                  
  */
-void ParallelHeatDistribution(float                     *parResult,
+void ParallelHeatDistribution(float *parResult,
                               const TMaterialProperties &materialProperties,
-                              const TParameters         &parameters,
-                              string                     outputFileName)
-{
+                              const TParameters &parameters,
+                              string outputFileName) {
   // Get MPI rank and size
   int rank, size;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  
+
   hid_t file_id = H5I_INVALID_HID;
-  
-  if(!parameters.useParallelIO)
-  {
-      // Serial I/O
-      if(rank == 0 && outputFileName != "")
-      {
-          if(outputFileName.find(".h5") == string::npos)
-              outputFileName.append("_par.h5");
-          else
-              outputFileName.insert(outputFileName.find_last_of("."), "_par");
 
-          file_id = H5Fcreate(outputFileName.c_str(),
-                              H5F_ACC_TRUNC,
-                              H5P_DEFAULT,
-                              H5P_DEFAULT);
-          if(file_id < 0) ios::failure("Cannot create output file");
-      }
-  }
-  else
-  {
-      // Parallel I/O
-      if(outputFileName != "")
-      {
-          if(outputFileName.find(".h5") == string::npos)
-              outputFileName.append("_par.h5");
-          else
-              outputFileName.insert(outputFileName.find_last_of("."), "_par");
+  if (!parameters.useParallelIO) {
+    // Serial I/O
+    if (rank == 0 && outputFileName != "") {
+      if (outputFileName.find(".h5") == string::npos)
+        outputFileName.append("_par.h5");
+      else
+        outputFileName.insert(outputFileName.find_last_of("."), "_par");
 
-          hid_t hPropList = H5Pcreate(H5P_FILE_ACCESS);
-          H5Pset_fapl_mpio(hPropList, MPI_COMM_WORLD, MPI_INFO_NULL);
+      file_id = H5Fcreate(outputFileName.c_str(),
+                          H5F_ACC_TRUNC,
+                          H5P_DEFAULT,
+                          H5P_DEFAULT);
+      if (file_id < 0) ios::failure("Cannot create output file");
+    }
+  } else {
+    // Parallel I/O
+    if (outputFileName != "") {
+      if (outputFileName.find(".h5") == string::npos)
+        outputFileName.append("_par.h5");
+      else
+        outputFileName.insert(outputFileName.find_last_of("."), "_par");
 
-          file_id = H5Fcreate(outputFileName.c_str(),
-                              H5F_ACC_TRUNC,
-                              H5P_DEFAULT,
-                              hPropList);
-          H5Pclose(hPropList);
-          if(file_id < 0) ios::failure("Cannot create output file");
-      }
+      hid_t hPropList = H5Pcreate(H5P_FILE_ACCESS);
+      H5Pset_fapl_mpio(hPropList, MPI_COMM_WORLD, MPI_INFO_NULL);
+
+      file_id = H5Fcreate(outputFileName.c_str(),
+                          H5F_ACC_TRUNC,
+                          H5P_DEFAULT,
+                          hPropList);
+      H5Pclose(hPropList);
+      if (file_id < 0) ios::failure("Cannot create output file");
+    }
   }
 
   //--------------------------------------------------------------------------//
@@ -329,13 +316,9 @@ void ParallelHeatDistribution(float                     *parResult,
   CPUMatrices cpuMatrices(size, parameters.edgeSize, rank);
 
   // [3] Init arrays
-  if(rank == 0){
-    for (size_t i = 0; i < materialProperties.nGridPoints; i++)
-    {
+  if (rank == 0) {
+    for (size_t i = 0; i < materialProperties.nGridPoints; i++) {
       parResult[i] = materialProperties.initTemp[i];
-      cout << parResult[i] << " ";
-      if(i % parameters.edgeSize == parameters.edgeSize-1)
-        cout << endl;
     }
     cpuMatrices.globalArray = parResult;
     cpuMatrices.globalDomainMap = materialProperties.domainMap;
@@ -356,84 +339,67 @@ void ParallelHeatDistribution(float                     *parResult,
   float middleColAvgTemp = 0.0f;
   size_t printCounter = 1;
 
-  //Meranie   //Ulozim cas pre vypocet dlzky behu
-  if(rank == 0)
-    cpuMatrices.elapsedTime = - MPI_Wtime(); /*zaciatok*/
+
 
   int startPointCol = (cpuMatrices.myCol == 0) ? 4 : 2;
-  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
-  int startPointRow = (cpuMatrices.myCol == 0) ? 4 : 2;
-  int endPointRow = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
+  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs - 1) ? cpuMatrices.widthEdge : 2 + cpuMatrices.widthEdge;
+  int startPointRow = (cpuMatrices.myRow == 0) ? 4 : 2;
+  int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 + cpuMatrices.heightEdge;
 
+  if (!parameters.batchMode && rank == 0)
+    printf("Starting parallel simulation... \n");
 
+  //Meranie   //Ulozim cas pre vypocet dlzky behu
+  double elapsedTime;
+  if (rank == 0)
+    elapsedTime = MPI_Wtime();
+
+  
   for (iteration = 0; iteration < parameters.nIterations; iteration++) {
     cpuMatrices.recieveHaloBlocks();
 
     //Calculate TOP rows
-    if(cpuMatrices.myRow != 0) {
-      int startPoint = (cpuMatrices.myCol == 0) ? 4 : 2;
-      int endPoint = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
+    if (cpuMatrices.myRow != 0) {
       for (size_t i = 2; i < 4; ++i) {
-        for (size_t j = startPoint; j < endPoint; ++j) {
-          ComputePoint(cpuMatrices.localData,
-                       cpuMatrices.localNewData,
-                       cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap,
-                       i, j,
-                       cpuMatrices.frameSizeOfLocal[1],
-                       parameters.airFlowRate,
+        for (size_t j = startPointCol; j < endPointCol; ++j) {
+          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
       }
     }
     //Calculate BOTTOM rows
-    if (cpuMatrices.myRow != cpuMatrices.heightProcs-1) {
-      int startPoint = (cpuMatrices.myCol == 0) ? 4 : 2;
-      int endPoint = (cpuMatrices.myCol == cpuMatrices.widthProcs-1) ? 0 : 2 + cpuMatrices.widthEdge;
-      for (size_t i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge+2; ++i) {
-        for (size_t j = startPoint; j < endPoint; ++j) {
-          ComputePoint(cpuMatrices.localData,
-                       cpuMatrices.localNewData,
-                       cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap,
-                       i, j,
-                       cpuMatrices.frameSizeOfLocal[1],
-                       parameters.airFlowRate,
+    if (cpuMatrices.myRow != cpuMatrices.heightProcs - 1) {
+      for (size_t i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge + 2; ++i) {
+        for (size_t j = startPointCol; j < endPointCol; ++j) {
+          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
       }
+
     }
     //Calculate LEFT col
-    if (cpuMatrices.myCol != 0 ) {
-      for (size_t i = (cpuMatrices.myRow == 0) ? 4 : 2;
-           i < ((cpuMatrices.myRow == cpuMatrices.heightProcs-1) ? 0 : 2) + cpuMatrices.heightEdge; ++i) {
+    if (cpuMatrices.myCol != 0) {
+      for (size_t i = startPointRow; i < endPointRow; ++i) {
         for (size_t j = 2; j < 4; ++j) {
-          ComputePoint(cpuMatrices.localData,
-                       cpuMatrices.localNewData,
-                       cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap,
-                       i, j,
-                       cpuMatrices.frameSizeOfLocal[1],
-                       parameters.airFlowRate,
+          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
       }
+
     }
     //Calculate RIGHT col
-    if (cpuMatrices.myCol != cpuMatrices.widthProcs-1 ) {
-      for (size_t i = (cpuMatrices.myRow == 0) ? 4 : 2;
-           i < ((cpuMatrices.myRow == cpuMatrices.heightProcs-1) ? 0 : 2) + cpuMatrices.heightEdge; ++i) {
-        for (size_t j = cpuMatrices.widthEdge; j < 2+cpuMatrices.widthEdge; ++j) {
-          ComputePoint(cpuMatrices.localData,
-                       cpuMatrices.localNewData,
-                       cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap,
-                       i, j,
-                       cpuMatrices.frameSizeOfLocal[1],
-                       parameters.airFlowRate,
+    if (cpuMatrices.myCol != cpuMatrices.widthProcs - 1) {
+      for (size_t i = startPointRow; i < endPointRow; ++i) {
+        for (size_t j = cpuMatrices.widthEdge; j < 2 + cpuMatrices.widthEdge; ++j) {
+          ComputePoint(cpuMatrices.localData, cpuMatrices.localNewData, cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
                        materialProperties.coolerTemp);
         }
       }
+
     }
 
     cpuMatrices.sendHaloBlocks();
@@ -453,7 +419,32 @@ void ParallelHeatDistribution(float                     *parResult,
     }
 
     cpuMatrices.waitHaloBlocks();
-    cpuMatrices.printMyData();
+
+    // [b] Compute the average temperature in the middle column
+    if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2 || rank == 0) {
+      middleColAvgTemp = 0.0f;
+      if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2) {
+        for (int i = 2; i < cpuMatrices.heightEdge+2; i++)
+          middleColAvgTemp += cpuMatrices.localNewData[i * cpuMatrices.frameSizeOfLocal[1] + cpuMatrices.middleColOffset];
+      }
+      MPI_Reduce(&middleColAvgTemp, &cpuMatrices.middleColAverageRoot,
+                 1, MPI_FLOAT, MPI_SUM, 0, cpuMatrices.middleColComm);
+    }
+
+    if(rank == 0){
+      cpuMatrices.middleColAverageRoot /= materialProperties.edgeSize;
+      // [e] Print progress and average temperature of the middle column
+      if ( ((float)(iteration) >= (parameters.nIterations-1) / 10.0f * (float)printCounter)
+           && !parameters.batchMode)
+      {
+        printf("Progress %ld%% (Average Temperature %.2f degrees)\n",
+               (iteration+1) * 100L / (parameters.nIterations),
+               cpuMatrices.middleColAverageRoot);
+        ++printCounter;
+      }
+    }
+
+
 
     //ZAPIS DO SUBORU
     // Doporuceny zpusob ukladani dat do vystupniho souboru
@@ -475,15 +466,15 @@ void ParallelHeatDistribution(float                     *parResult,
                             iteration / parameters.diskWriteIntensity,
                             iteration);
         }
-      }
-      else {
+      } else {
         // Parallel I/O
         if (file_id != H5I_INVALID_HID) {
           StoreDataIntoFileParallel(file_id,
-                                    cpuMatrices.localData,
+                                    cpuMatrices.localNewData,
                                     materialProperties.edgeSize,
-                                    cpuMatrices.widthEdge+4, cpuMatrices.heightEdge+4,
-                                    (cpuMatrices.widthEdge) * cpuMatrices.myCol, (cpuMatrices.heightEdge) * cpuMatrices.myRow,
+                                    cpuMatrices.widthEdge + 4, cpuMatrices.heightEdge + 4,
+                                    (cpuMatrices.widthEdge) * cpuMatrices.myCol,
+                                    (cpuMatrices.heightEdge) * cpuMatrices.myRow,
                                     iteration / parameters.diskWriteIntensity, iteration);
         }
       }
@@ -492,10 +483,22 @@ void ParallelHeatDistribution(float                     *parResult,
     swap(cpuMatrices.localNewData, cpuMatrices.localData);
 
   }
+  cpuMatrices.gather();
 
   //Meranie
-  if(rank == 0)
-    cpuMatrices.elapsedTime += MPI_Wtime(); /*Konec*/
+  if (rank == 0){
+    double totalTime = MPI_Wtime() - elapsedTime;
+    // [7] Print final result
+    if (!parameters.batchMode)
+      printf("\nExecution time of parallel version %.5f\n", totalTime);
+    else
+      printf("%s;%s;%f;%e;%e\n", outputFileName.c_str(), "par",
+             cpuMatrices.middleColAverageRoot, totalTime,
+             totalTime / parameters.nIterations);
+  }
+
+
+
 
   // close the output file
   if (file_id != H5I_INVALID_HID) H5Fclose(file_id);
@@ -511,13 +514,12 @@ void ParallelHeatDistribution(float                     *parResult,
  * @param [in] snapshotId - snapshot id
  * @param [in] iteration  - id of iteration);
  */
-void StoreDataIntoFile(hid_t         h5fileId,
-                       const float  *data,
-                       const size_t  edgeSize,
-                       const size_t  snapshotId,
-                       const size_t  iteration)
-{
-  hid_t   dataset_id, dataspace_id, group_id, attribute_id;
+void StoreDataIntoFile(hid_t h5fileId,
+                       const float *data,
+                       const size_t edgeSize,
+                       const size_t snapshotId,
+                       const size_t iteration) {
+  hid_t dataset_id, dataspace_id, group_id, attribute_id;
   hsize_t dims[2] = {edgeSize, edgeSize};
 
   string groupName = "Timestep_" + to_string((unsigned long long) snapshotId);
@@ -547,7 +549,7 @@ void StoreDataIntoFile(hid_t         h5fileId,
 
 
   // write attribute
-  string atributeName="Time";
+  string atributeName = "Time";
   dataspace_id = H5Screate(H5S_SCALAR);
   attribute_id = H5Acreate2(group_id, atributeName.c_str(),
                             H5T_IEEE_F64LE, dataspace_id,
@@ -587,70 +589,69 @@ void StoreDataIntoFileParallel(hid_t h5fileId,
                                const size_t tileWidth, const size_t tileHeight,
                                const size_t tilePosX, const size_t tilePosY,
                                const size_t snapshotId,
-                               const size_t iteration)
-{
-    hid_t dataset_id, dataspace_id, group_id, attribute_id, memspace_id;
-    const hsize_t dims[2] = { edgeSize, edgeSize };
-    const hsize_t offset[2] = { tilePosY, tilePosX };
-    const hsize_t tile_dims[2] = { tileHeight, tileWidth };
-    const hsize_t core_dims[2] = { tileHeight - 4, tileWidth - 4 };
-    const hsize_t core_offset[2] = { 2, 2 };
+                               const size_t iteration) {
+  hid_t dataset_id, dataspace_id, group_id, attribute_id, memspace_id;
+  const hsize_t dims[2] = {edgeSize, edgeSize};
+  const hsize_t offset[2] = {tilePosY, tilePosX};
+  const hsize_t tile_dims[2] = {tileHeight, tileWidth};
+  const hsize_t core_dims[2] = {tileHeight - 4, tileWidth - 4};
+  const hsize_t core_offset[2] = {2, 2};
 
-    string groupName = "Timestep_" + to_string((unsigned long)snapshotId);
+  string groupName = "Timestep_" + to_string((unsigned long) snapshotId);
 
-    // Create a group named "/Timestep_snapshotId" in the file.
-    group_id = H5Gcreate(h5fileId,
-                         groupName.c_str(),
+  // Create a group named "/Timestep_snapshotId" in the file.
+  group_id = H5Gcreate(h5fileId,
+                       groupName.c_str(),
+                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+  // Create the data space in the output file. (2D matrix)
+  dataspace_id = H5Screate_simple(2, dims, NULL);
+
+  // create a dataset for temperature and write data
+  string datasetName = "Temperature";
+  dataset_id = H5Dcreate(group_id,
+                         datasetName.c_str(),
+                         H5T_NATIVE_FLOAT,
+                         dataspace_id,
                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-    // Create the data space in the output file. (2D matrix)
-    dataspace_id = H5Screate_simple(2, dims, NULL);
+  // create the data space in memory representing local tile. (2D matrix)
+  memspace_id = H5Screate_simple(2, tile_dims, NULL);
 
-    // create a dataset for temperature and write data
-    string datasetName = "Temperature";
-    dataset_id = H5Dcreate(group_id,
-                           datasetName.c_str(),
-                           H5T_NATIVE_FLOAT,
-                           dataspace_id,
-                           H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  // select appropriate block of the local tile. (without halo zones)
+  H5Sselect_hyperslab(memspace_id, H5S_SELECT_SET, core_offset, NULL, core_dims, NULL);
 
-    // create the data space in memory representing local tile. (2D matrix)
-    memspace_id = H5Screate_simple(2, tile_dims, NULL);
+  // select appropriate block of the output file, where local tile will be placed.
+  H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, NULL, core_dims, NULL);
 
-    // select appropriate block of the local tile. (without halo zones)
-    H5Sselect_hyperslab(memspace_id, H5S_SELECT_SET, core_offset, NULL, core_dims, NULL);
+  // setup collective write using MPI parallel I/O
+  hid_t hPropList = H5Pcreate(H5P_DATASET_XFER);
+  H5Pset_dxpl_mpio(hPropList, H5FD_MPIO_COLLECTIVE);
 
-    // select appropriate block of the output file, where local tile will be placed.
-    H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, offset, NULL, core_dims, NULL);
+  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, memspace_id, dataspace_id, hPropList, data);
 
-    // setup collective write using MPI parallel I/O
-    hid_t hPropList = H5Pcreate(H5P_DATASET_XFER);
-    H5Pset_dxpl_mpio(hPropList, H5FD_MPIO_COLLECTIVE);
+  // close memory spaces and property list
+  H5Sclose(memspace_id);
+  H5Sclose(dataspace_id);
+  H5Pclose(hPropList);
 
-    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, memspace_id, dataspace_id, hPropList, data);
+  // write attribute
+  string attributeName = "Time";
+  dataspace_id = H5Screate(H5S_SCALAR);
+  attribute_id = H5Acreate2(group_id, attributeName.c_str(),
+                            H5T_IEEE_F64LE, dataspace_id,
+                            H5P_DEFAULT, H5P_DEFAULT);
 
-    // close memory spaces and property list
-    H5Sclose(memspace_id);
-    H5Sclose(dataspace_id);
-    H5Pclose(hPropList);
+  double snapshotTime = double(iteration);
+  H5Awrite(attribute_id, H5T_IEEE_F64LE, &snapshotTime);
+  H5Aclose(attribute_id);
 
-    // write attribute
-    string attributeName = "Time";
-    dataspace_id = H5Screate(H5S_SCALAR);
-    attribute_id = H5Acreate2(group_id, attributeName.c_str(),
-                              H5T_IEEE_F64LE, dataspace_id,
-                              H5P_DEFAULT, H5P_DEFAULT);
+  // close the dataspace
+  H5Sclose(dataspace_id);
 
-    double snapshotTime = double(iteration);
-    H5Awrite(attribute_id, H5T_IEEE_F64LE, &snapshotTime);
-    H5Aclose(attribute_id);
-
-    // close the dataspace
-    H5Sclose(dataspace_id);
-
-    // close the dataset and the group
-    H5Dclose(dataset_id);
-    H5Gclose(group_id);
+  // close the dataset and the group
+  H5Dclose(dataset_id);
+  H5Gclose(group_id);
 }
 //------------------------------------------------------------------------------
 
@@ -660,8 +661,7 @@ void StoreDataIntoFileParallel(hid_t h5fileId,
  * @param [in] argv
  * @return
  */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   int rank, size;
 
   ParseCommandline(argc, argv, parameters);
@@ -673,34 +673,28 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  if (rank == 0)
-  {
+  if (rank == 0) {
     // Create material properties and load from file
     materialProperties.LoadMaterialData(parameters.materialFileName, true);
     parameters.edgeSize = materialProperties.edgeSize;
 
     parameters.PrintParameters();
-  }
-  else
-  {
+  } else {
     // Create material properties and load from file
     materialProperties.LoadMaterialData(parameters.materialFileName, false);
     parameters.edgeSize = materialProperties.edgeSize;
   }
 
-  if (parameters.edgeSize % size)
-  {
+  if (parameters.edgeSize % size) {
     if (rank == 0)
       printf("ERROR: number of MPI processes is not a divisor of N\n");
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
 
-  if (parameters.IsRunSequntial())
-  {
-    if (rank == 0)
-    {
+  if (parameters.IsRunSequntial()) {
+    if (rank == 0) {
       // Memory allocation for output matrices.
-      seqResult = (float*)_mm_malloc(materialProperties.nGridPoints * sizeof(float), DATA_ALIGNMENT);
+      seqResult = (float *) _mm_malloc(materialProperties.nGridPoints * sizeof(float), DATA_ALIGNMENT);
 
       SequentialHeatDistribution(seqResult,
                                  materialProperties,
@@ -709,11 +703,10 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (parameters.IsRunParallel())
-  {
+  if (parameters.IsRunParallel()) {
     // Memory allocation for output matrix.
     if (rank == 0)
-      parResult = (float*) _mm_malloc(materialProperties.nGridPoints * sizeof(float), DATA_ALIGNMENT);
+      parResult = (float *) _mm_malloc(materialProperties.nGridPoints * sizeof(float), DATA_ALIGNMENT);
     else
       parResult = NULL;
 
@@ -724,10 +717,8 @@ int main(int argc, char *argv[])
   }
 
   // Validate the outputs
-  if (parameters.IsValidation() && rank == 0)
-  {
-    if (parameters.debugFlag)
-    {
+  if (parameters.IsValidation() && rank == 0) {
+    if (parameters.debugFlag) {
       printf("---------------- Sequential results ---------------\n");
       PrintArray(seqResult, materialProperties.edgeSize);
 

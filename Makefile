@@ -59,11 +59,13 @@ $(TARGET_MIC): proj02_mic.o MaterialProperties_mic.o BasicRoutines_mic.o
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_MIC) -c -o $@ $<
 
 test: $(TARGET)
-	./arc_proj02 -n 1 -m 0 -w 1 -i ../DataGenerator/material.h5 -o result.h5
+	./arc_proj02 -n 1 -n 100 -t 4 -m 0 -w 100 -i ../DataGenerator/material.h5 -o result.h5
 
 test1: $(TARGET)
-	mpirun -np 8 ./arc_proj02 -n 20 -m 1 -w 1 -i ../DataGenerator/material.h5 -o result.h5 -v -p
+	mpirun -np 16 ./arc_proj02 -n 100 -m 1 -w 100 -i ../DataGenerator/material.h5 -o result.h5 -v
 
+test2: $(TARGET)
+	mpirun -np 4 ./arc_proj02 -n 10000 -t 4 -m 1 -w 100 -i ../DataGenerator/material.h5 -o result.h5 -v
 
 testmic:
 	./arc_proj02_mic -n 100 -m 0 -w 10 -i ../DataGenerator/material.h5 -o result.h5

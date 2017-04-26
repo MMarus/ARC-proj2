@@ -2,6 +2,7 @@
 // Created by archie on 4/24/17.
 //
 
+#include <cstring>
 #include <vector>
 #include <stdexcept>
 #include <cmath>
@@ -18,20 +19,24 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
   myRank = rank;
   numOfCpus = cpus;
 
-  widthProcs = sqrt(numOfCpus);
-  if(fmod(sqrt(numOfCpus),2.0) != 0.0) {
-    widthProcs = sqrt(numOfCpus/2);
-    if (widthProcs %2 != 0) {
-      throw runtime_error("Error wrong # of processes.");
-    }
-    heightProcs = widthProcs*2;
-    widthEdge = edgeSize / widthProcs;
-    heightEdge = edgeSize / heightProcs;
+  if(numOfCpus == 1){
+    widthProcs = 1;
+    heightProcs = 1;
   } else {
-    heightProcs = widthProcs;
-    widthEdge = edgeSize / widthProcs;
-    heightEdge = edgeSize / heightProcs;
+    if(fmod(sqrt(numOfCpus),2.0) != 0.0) {
+      widthProcs = (numOfCpus == 2) ? 1 : sqrt(numOfCpus/2);
+      if (widthProcs % 2 != 0 && numOfCpus != 2) {
+        throw runtime_error("Error wrong # of processes.");
+      }
+      heightProcs = widthProcs*2;
+    } else {
+      widthProcs = sqrt(numOfCpus);
+      heightProcs = widthProcs;
+    }
   }
+
+  widthEdge = edgeSize / widthProcs;
+  heightEdge = edgeSize / heightProcs;
 
   myCol = myRank % widthProcs;
   myRow = myRank / widthProcs;
@@ -39,9 +44,6 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
   myRightNeighbour = myRank+1;
   myTopNeighbour = myRank - widthProcs;
   myBottomNeighbour = myRank + widthProcs;
-
-  if(myRank == 0)
-  cout << "heightEdge" << heightEdge  << "widthEdge" << widthEdge << endl;
 
   frameSize[0] = edgeSize;         /* global size */
   frameSize[1] = edgeSize;         /* global size */
@@ -97,6 +99,29 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
   haloRightColStart = 2*frameSizeOfLocal[1]+2+widthEdge;
   haloDataRighColStart = 2*frameSizeOfLocal[1]+widthEdge;
 
+  //Average communicator
+  vector<int> middleCols;
+  middleCols.clear();
+  middleCols.push_back(0);
+
+  for (int i = 1; i < numOfCpus; ++i) {
+    if(i % widthProcs == widthProcs/2)
+      middleCols.push_back(i);
+  }
+  if ( (0 % widthProcs == widthProcs/2 && middleCols.size() != heightProcs ) ||
+      (0 % widthProcs != widthProcs/2 && middleCols.size()-1 != heightProcs )) {
+    printf("Error in creation of middle comm. Middle size = %zu height %zu\n", middleCols.size(),heightProcs);
+    MPI_Abort(MPI_COMM_WORLD, 1);
+  }
+
+
+  MPI_Comm_group(MPI_COMM_WORLD, &old_group);
+  MPI_Group_incl(old_group, middleCols.size(), middleCols.data(), &new_group);
+  MPI_Comm_create(MPI_COMM_WORLD, new_group, &middleColComm);
+  MPI_Comm_rank(MPI_COMM_WORLD, &middleColMyRank);
+  MPI_Comm_size(MPI_COMM_WORLD, &middleColSize);
+  middleColAverageRoot = 0;
+  middleColOffset = (numOfCpus > 2) ? 2 : (2 + widthEdge/2);
 
   sendcounts.resize(numOfCpus);
   displs.resize(numOfCpus);
@@ -127,15 +152,15 @@ void CPUMatrices::gather() {
   MPI_Gatherv(&(localNewData[0]), 1, localSubArrFloatType, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
 //  MPI_Gatherv(&(localData[0]), widthEdge*heightEdge,  MPI_INT, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
 
-  if (myRank == 0) {
-    printf("Processed grid:\n");
-    for (int i=0; i<edgeSize*edgeSize; i++) {
-      cout << globalArray[i] << " ";
-      if(i % edgeSize == edgeSize-1)
-        cout << endl;
-    }
-
-  }
+//  if (myRank == 0) {
+//    printf("Processed grid:\n");
+//    for (int i=0; i<edgeSize*edgeSize; i++) {
+//      cout << globalArray[i] << " ";
+//      if(i % edgeSize == edgeSize-1)
+//        cout << endl;
+//    }
+//
+//  }
 }
 
 void CPUMatrices::sendHaloBlocks() {
@@ -233,10 +258,10 @@ void CPUMatrices::printMyData() {
       printf("Local process on rank %d is:\n", myRank);
       for (int i=0; i< frameSizeOfLocal[0] * frameSizeOfLocal[1]; i++) {
         if(i % frameSizeOfLocal[1] == 0)
-          cout << "|";
-        cout << localNewData[i] << " ";
+          printf("|");
+        printf("%f ", localNewData[i]);
         if(i % frameSizeOfLocal[1] == frameSizeOfLocal[1]-1)
-          cout << "|" <<  endl;
+          printf("|\n");
       }
     }
     MPI_Barrier(MPI_COMM_WORLD);
