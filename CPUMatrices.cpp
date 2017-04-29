@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cmath>
+#include <iostream>
 #include <mpi.h>
 #include <algorithm>
 #include "CPUMatrices.h"
@@ -68,17 +69,6 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
   startsOfLocal[0] = 2;
   startsOfLocal[1] = 2;
 
-  MPI_Type_create_subarray(2, frameSizeOfLocal, tileSizeOfLocal, startsOfLocal, MPI_ORDER_C, MPI_FLOAT, &localSubArrFloatType);
-  MPI_Type_commit(&localSubArrFloatType);
-  MPI_Type_create_subarray(2, frameSizeOfLocal, tileSizeOfLocal, startsOfLocal, MPI_ORDER_C, MPI_INT, &localSubArrIntType);
-  MPI_Type_commit(&localSubArrIntType);
-
-  MPI_Type_vector(2, widthEdge, frameSizeOfLocal[1], MPI_FLOAT, &localRows);
-  MPI_Type_commit(&localRows);
-
-  MPI_Type_vector(heightEdge, 2, frameSizeOfLocal[1], MPI_FLOAT, &localCols);
-  MPI_Type_commit(&localCols);
-
   localDomainMap = (int  *) _mm_malloc((frameSizeOfLocal[0])*(frameSizeOfLocal[1])*sizeof(int),   DATA_ALIGNMENT);
   localDomainParams = (float*) _mm_malloc((frameSizeOfLocal[0])*(frameSizeOfLocal[1])* sizeof(float), DATA_ALIGNMENT);
   localData = (float*) _mm_malloc((frameSizeOfLocal[0])*(frameSizeOfLocal[1])* sizeof(float), DATA_ALIGNMENT);
@@ -88,6 +78,19 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
   std::fill(localData, localData + (frameSizeOfLocal[0])*(frameSizeOfLocal[1]), 0.0);
   std::fill(localNewData, localNewData + (frameSizeOfLocal[0])*(frameSizeOfLocal[1]), 0.0);
 
+  MPI_Type_create_subarray(2, frameSizeOfLocal, tileSizeOfLocal, startsOfLocal, MPI_ORDER_C, MPI_FLOAT, &localTypeFloat);
+  MPI_Type_create_resized(localTypeFloat, 0, (widthEdge)*sizeof(float), &localSubArrFloatType);
+  MPI_Type_commit(&localSubArrFloatType);
+
+
+  MPI_Type_create_subarray(2, frameSizeOfLocal, tileSizeOfLocal, startsOfLocal, MPI_ORDER_C, MPI_INT, &localSubArrIntType);
+  MPI_Type_commit(&localSubArrIntType);
+
+  MPI_Type_vector(2, widthEdge, frameSizeOfLocal[1], MPI_FLOAT, &localRows);
+  MPI_Type_commit(&localRows);
+
+  MPI_Type_vector(heightEdge, 2, frameSizeOfLocal[1], MPI_FLOAT, &localCols);
+  MPI_Type_commit(&localCols);
 
   haloTopRowStart = 2;
   haloDataTopRowStart = 2*frameSizeOfLocal[1]+2;
@@ -109,7 +112,7 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
       middleCols.push_back(i);
   }
   if ( (0 % widthProcs == widthProcs/2 && middleCols.size() != heightProcs ) ||
-      (0 % widthProcs != widthProcs/2 && middleCols.size()-1 != heightProcs )) {
+       (0 % widthProcs != widthProcs/2 && middleCols.size()-1 != heightProcs )) {
     printf("Error in creation of middle comm. Middle size = %zu height %zu\n", middleCols.size(),heightProcs);
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
@@ -134,6 +137,7 @@ CPUMatrices::CPUMatrices(int cpus, size_t edge, int rank) {
       disp = heightEdge * widthProcs * i;
       for (int j=0; j<widthProcs; j++) {
         displs[i*widthProcs+j] = disp;
+//        cout << "i " <<i<<" j "<<j<<" displs" <<displs[i*widthProcs+j]<<endl;
         disp += 1;
       }
     }
@@ -144,23 +148,65 @@ void CPUMatrices::scatter() {
   MPI_Scatterv(globalArray, sendcounts.data(), displs.data(), subArrFloatType, &(localNewData[0]), 1, localSubArrFloatType, 0, MPI_COMM_WORLD);
   MPI_Scatterv(globalDomainParams, sendcounts.data(), displs.data(), subArrFloatType, &(localDomainParams[0]), 1, localSubArrFloatType, 0, MPI_COMM_WORLD);
   MPI_Scatterv(globalDomainMap, sendcounts.data(), displs.data(), subArrIntType, &(localDomainMap[0]), 1, localSubArrIntType, 0, MPI_COMM_WORLD);
-
+//  printMyData();
 }
 
 void CPUMatrices::gather() {
   /* it all goes back to process 0 */
-  MPI_Gatherv(&(localNewData[0]), 1, localSubArrFloatType, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
-//  MPI_Gatherv(&(localData[0]), widthEdge*heightEdge,  MPI_INT, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
+//  vector<MPI_Status> status(numOfCpus+1);
+//  vector<MPI_Request> request(numOfCpus+1);
+//  int counterRequests = 0;
+//  vector<int> displs2(numOfCpus);
 
+  MPI_Gatherv(&(localNewData[0]), 1, localSubArrFloatType, globalArray, sendcounts.data(), displs.data(), subArrFloatType, 0, MPI_COMM_WORLD);
+
+  //MPI_Gatherv did deadlock on the Salomon. Also Irecv and Isend did deadlock whe sent all data to 0 rank
+  //Following is workaround send from 0 to 0 with Isend and Irecv and then use Send and Recv from other ranks
 //  if (myRank == 0) {
-//    printf("Processed grid:\n");
-//    for (int i=0; i<edgeSize*edgeSize; i++) {
-//      cout << globalArray[i] << " ";
-//      if(i % edgeSize == edgeSize-1)
-//        cout << endl;
-//    }
+//    int disp = 0;
+//    for (int i=0; i<heightProcs; i++) {
 //
+//      disp = heightEdge * edgeSize * i;
+//
+//      for (int j=0; j<widthProcs; j++) {
+//
+//        displs2[i*widthProcs+j] = disp;
+////        cout << "i " <<i<<" j "<<j<<" displs " <<displs2[i*widthProcs+j]<<endl;
+//        disp += 1* widthEdge;
+//      }
+//    }
 //  }
+//
+//  if(myRank == 0) {
+//    MPI_Isend(&(localNewData[0]), 1, localSubArrFloatType, 0, 1, MPI_COMM_WORLD, &request[counterRequests++]);
+////    cout << myRank << " " << counterRequests << endl;
+////    cout << "reccving from " << 0 << " to " << displs2[0] << endl;
+//    MPI_Irecv(&(globalArray[displs2[0]]), 1, subArrFloatType, 0, 1, MPI_COMM_WORLD, &request[counterRequests++]);
+////    cout << "requests " << counterRequests << endl;
+//    MPI_Waitall(counterRequests, request.data(), status.data());
+//  }
+//
+//  if (myRank != 0) {
+//    MPI_Send(&(localNewData[0]), 1, localSubArrFloatType, 0, 1, MPI_COMM_WORLD);
+////    cout << myRank << " sent request" << endl;
+//  }
+//
+//  if(myRank == 0){
+//    for (int i = 1; i < numOfCpus; ++i) {
+////      cout << "reccving from " << i << " to " << displs2[i] << endl;
+//      MPI_Recv(&(globalArray[displs2[i]]), 1, subArrFloatType, i, 1, MPI_COMM_WORLD, &(status[0]));
+//    }
+//  }
+//
+////  if (myRank == 0) {
+////    printf("Processed grid:\n");
+////    for (int i=0; i<edgeSize*edgeSize; i++) {
+////      cout << globalArray[i] << " ";
+////      if(i % edgeSize == edgeSize-1)
+////        cout << endl;
+////    }
+////
+////  }
 }
 
 void CPUMatrices::sendHaloBlocks() {

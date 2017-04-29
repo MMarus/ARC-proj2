@@ -65,7 +65,7 @@ test1: $(TARGET)
 	mpirun -np 16 ./arc_proj02 -n 100 -m 1 -w 100 -i ../DataGenerator/material.h5 -o result.h5 -v
 
 test2: $(TARGET)
-	mpirun -np 2 ./arc_proj02 -n 1000 -t 1 -m 1 -w 100 -i ../DataGenerator/material.h5 -o result.h5 -v
+	mpirun -np 1 ./arc_proj02 -n 1000 -t 16 -m 1 -w 100 -i ../DataGenerator/material.h5 -o result.h5 -v
 
 testmic:
 	./arc_proj02_mic -n 100 -m 0 -w 10 -i ../DataGenerator/material.h5 -o result.h5

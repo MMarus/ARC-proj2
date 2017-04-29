@@ -23,6 +23,7 @@
 #include <string.h>
 #include <string>
 #include <cmath>
+#include <iostream>
 
 #include <hdf5.h>
 
@@ -92,7 +93,6 @@ void StoreDataIntoFileParallel(hid_t h5fileId,
 //----------------------------------------------------------------------------//
 //------------------------- Function implementation  -------------------------//
 //----------------------------------------------------------------------------//
-
 
 void ComputePoint(float *oldTemp,
                   float *newTemp,
@@ -233,7 +233,7 @@ void SequentialHeatDistribution(float *seqResult,
     }
   } // for iteration
 
-  //-------------------- stop the stop watch  --------------------------------//  
+  //-------------------- stop the stop watch  --------------------------------//
   double totalTime = MPI_Wtime() - elapsedTime;
 
   // [7] Print final result
@@ -262,7 +262,7 @@ void SequentialHeatDistribution(float *seqResult,
  * @param [in]  parameters         - parameters of the simulation
  * @param [in]  outputFileName     - Output file name (if NULL string, do not store)
  *
- * @note This is the function that students should implement.                                                  
+ * @note This is the function that students should implement.
  */
 void ParallelHeatDistribution(float *parResult,
                               const TMaterialProperties &materialProperties,
@@ -313,7 +313,7 @@ void ParallelHeatDistribution(float *parResult,
   //---------------- THE SECTION WHERE STUDENTS MAY ADD CODE -----------------//
   //--------------------------------------------------------------------------//
   size_t iteration;
-  size_t i,j;
+  size_t i, j;
   float middleColAvgTemp = 0.0f;
   float middleColAverageRoot = 0.0f;
   size_t printCounter = 1;
@@ -329,195 +329,205 @@ void ParallelHeatDistribution(float *parResult,
   oldTemp = cpuMatrices.localData;
 
   int startPointCol = (cpuMatrices.myCol == 0) ? 4 : 2;
-  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs - 1) ? cpuMatrices.widthEdge : 2 + cpuMatrices.widthEdge;
+  int endPointCol = (cpuMatrices.myCol == cpuMatrices.widthProcs - 1) ? cpuMatrices.widthEdge : 2 +
+                                                                                                cpuMatrices.widthEdge;
   int startPointRow = (cpuMatrices.myRow == 0) ? 4 : 2;
-  int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 + cpuMatrices.heightEdge;
+  int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 +
+                                                                                                  cpuMatrices.heightEdge;
 
 #pragma omp parallel firstprivate(printCounter) private(iteration) private(middleColAverageRoot)
-{
+  {
 
     // [3] Init arrays
-  if (rank == 0) {
+    if (rank == 0) {
 #pragma omp for simd
-    for (i = 0; i < materialProperties.nGridPoints; i++) {
-      parResult[i] = materialProperties.initTemp[i];
-    }
-  }
-#pragma omp master
-{
-  cpuMatrices.scatter();
-  cpuMatrices.sendHaloBlocks();
-  cpuMatrices.recieveHaloBlocks();
-  cpuMatrices.waitHaloBlocks();
-  cpuMatrices.sendHaloBlocksDomainParams();
-  cpuMatrices.recieveHaloBlocksDomainParams();
-  cpuMatrices.waitHaloBlocks();
-  cpuMatrices.copyNewToOld();
-
-  if (!parameters.batchMode && rank == 0)
-    printf("Starting parallel simulation... \n");
-
-  //Meranie   //Ulozim cas pre vypocet dlzky behu
-  if (rank == 0)
-    elapsedTime = MPI_Wtime();
-
-}// konec pragma omp master
-
-  for (iteration = 0; iteration < parameters.nIterations; iteration++) {
-#pragma omp master
-    cpuMatrices.recieveHaloBlocks();
-
-    //Calculate TOP rows
-    if (cpuMatrices.myRow != 0) {
-#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
-      for (i = 2; i < 4; ++i) {
-        for (j = startPointCol; j < endPointCol; ++j) {
-          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
-                       materialProperties.coolerTemp);
-        }
+      for (i = 0; i < materialProperties.nGridPoints; i++) {
+        parResult[i] = materialProperties.initTemp[i];
       }
     }
-    //Calculate BOTTOM rows
-    if (cpuMatrices.myRow != cpuMatrices.heightProcs - 1) {
-#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
-      for (i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge + 2; ++i) {
-        for (j = startPointCol; j < endPointCol; ++j) {
-          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
-                       materialProperties.coolerTemp);
-        }
-      }
 
-    }
-    //Calculate LEFT col
-    if (cpuMatrices.myCol != 0) {
-#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
-      for (i = startPointRow; i < endPointRow; ++i) {
-        for (j = 2; j < 4; ++j) {
-          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
-                       materialProperties.coolerTemp);
-        }
-      }
-
-    }
-    //Calculate RIGHT col
-    if (cpuMatrices.myCol != cpuMatrices.widthProcs - 1) {
-#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
-      for (i = startPointRow; i < endPointRow; ++i) {
-        for (j = cpuMatrices.widthEdge; j < 2 + cpuMatrices.widthEdge; ++j) {
-          ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
-                       cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
-                       materialProperties.coolerTemp);
-        }
-      }
-
-    }
-#pragma omp master
-    cpuMatrices.sendHaloBlocks();
-
-    //calculate inner tile
-#pragma omp for firstprivate(oldTemp, newTemp) collapse(2)
-    for (i = 4; i < cpuMatrices.frameSizeOfLocal[0] - 4; ++i) {
-      for (j = 4; j < cpuMatrices.frameSizeOfLocal[1] - 4; ++j) {
-        ComputePoint(oldTemp,
-                     newTemp,
-                     cpuMatrices.localDomainParams,
-                     cpuMatrices.localDomainMap,
-                     i, j,
-                     cpuMatrices.frameSizeOfLocal[1],
-                     parameters.airFlowRate,
-                     materialProperties.coolerTemp);
-      }
-    }
 #pragma omp master
     {
+      cpuMatrices.scatter();
+      cpuMatrices.sendHaloBlocks();
+      cpuMatrices.recieveHaloBlocks();
       cpuMatrices.waitHaloBlocks();
-      middleColAvgTemp = 0.0f;
+      cpuMatrices.sendHaloBlocksDomainParams();
+      cpuMatrices.recieveHaloBlocksDomainParams();
+      cpuMatrices.waitHaloBlocks();
+      cpuMatrices.copyNewToOld();
 
-      if(rank == 0){
-        middleColAverageRoot = 0.0f;
-      }
+      if (!parameters.batchMode && rank == 0)
+        printf("Starting parallel simulation... \n");
+
+      //Meranie   //Ulozim cas pre vypocet dlzky behu
+      if (rank == 0)
+        elapsedTime = MPI_Wtime();
     }
+
+
+    for (iteration = 0; iteration < parameters.nIterations; iteration++) {
+#pragma omp master
+      cpuMatrices.recieveHaloBlocks();
 #pragma omp barrier
-    // [b] Compute the average temperature in the middle column
-    if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2 || rank == 0) {
-      if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2) {
-#pragma omp for simd reduction(+:middleColAvgTemp)
-        for (int i = 2; i < cpuMatrices.heightEdge+2; i++)
-          middleColAvgTemp += newTemp[i * cpuMatrices.frameSizeOfLocal[1] + cpuMatrices.middleColOffset];
+      //Calculate TOP rows
+      if (cpuMatrices.myRow != 0) {
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+        for (i = 2; i < 4; ++i) {
+#pragma omp simd
+          for (j = startPointCol; j < endPointCol; ++j) {
+            ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
+                         cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
+                         materialProperties.coolerTemp);
+          }
+        }
+      }
+      //Calculate BOTTOM rows
+      if (cpuMatrices.myRow != cpuMatrices.heightProcs - 1) {
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+        for (i = cpuMatrices.heightEdge; i < cpuMatrices.heightEdge + 2; ++i) {
+#pragma omp simd
+          for (j = startPointCol; j < endPointCol; ++j) {
+            ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
+                         cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
+                         materialProperties.coolerTemp);
+          }
+        }
+
+      }
+      //Calculate LEFT col
+      if (cpuMatrices.myCol != 0) {
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+        for (i = startPointRow; i < endPointRow; ++i) {
+#pragma omp simd
+          for (j = 2; j < 4; ++j) {
+            ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
+                         cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
+                         materialProperties.coolerTemp);
+          }
+        }
+
+      }
+      //Calculate RIGHT col
+      if (cpuMatrices.myCol != cpuMatrices.widthProcs - 1) {
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+        for (i = startPointRow; i < endPointRow; ++i) {
+#pragma omp simd
+          for (j = cpuMatrices.widthEdge; j < 2 + cpuMatrices.widthEdge; ++j) {
+            ComputePoint(oldTemp, newTemp, cpuMatrices.localDomainParams,
+                         cpuMatrices.localDomainMap, i, j, cpuMatrices.frameSizeOfLocal[1], parameters.airFlowRate,
+                         materialProperties.coolerTemp);
+          }
+        }
+
+      }
+#pragma omp master
+      {
+        cpuMatrices.sendHaloBlocks();
       }
 #pragma omp barrier
 
-//#pragma omp master
-//      MPI_Reduce(&middleColAvgTemp, &middleColAverageRoot, 1, MPI_FLOAT, MPI_SUM, 0, cpuMatrices.middleColComm);
-    }
+#pragma omp for firstprivate(oldTemp, newTemp) private(j)
+      for (i = 4; i < cpuMatrices.heightEdge; ++i) {
+#pragma omp simd
+        for (j = 4; j < cpuMatrices.widthEdge; ++j) {
+          ComputePoint(oldTemp,
+                       newTemp,
+                       cpuMatrices.localDomainParams,
+                       cpuMatrices.localDomainMap,
+                       i, j,
+                       cpuMatrices.frameSizeOfLocal[1],
+                       parameters.airFlowRate,
+                       materialProperties.coolerTemp);
+        }
+      }
 
 #pragma omp master
-{
-    if(rank == 0){
-      middleColAverageRoot /= materialProperties.edgeSize;
-      // [e] Print progress and average temperature of the middle column
-      if ( ((float)(iteration) >= (parameters.nIterations-1) / 10.0f * (float)printCounter)
-           && !parameters.batchMode)
       {
-        printf("Progress %ld%% (Average Temperature %.2f degrees)\n",
-               (iteration+1) * 100L / (parameters.nIterations),
-               middleColAverageRoot);
-        ++printCounter;
+        cpuMatrices.waitHaloBlocks();
+        middleColAvgTemp = 0.0f;
+
+        if (rank == 0) {
+          middleColAverageRoot = 0.0f;
+        }
       }
+#pragma omp barrier
+
+      // [b] Compute the average temperature in the middle column
+      if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2 || rank == 0) {
+        if (cpuMatrices.myCol == cpuMatrices.widthProcs / 2) {
+#pragma omp for simd reduction(+:middleColAvgTemp)
+          for (int i = 2; i < cpuMatrices.heightEdge + 2; i++)
+            middleColAvgTemp += newTemp[i * cpuMatrices.frameSizeOfLocal[1] + cpuMatrices.middleColOffset];
+        }
+#pragma omp master
+        MPI_Reduce(&middleColAvgTemp, &middleColAverageRoot, 1, MPI_FLOAT, MPI_SUM, 0, cpuMatrices.middleColComm);
+      }
+
+#pragma omp master
+      {
+        if (rank == 0) {
+          middleColAverageRoot /= materialProperties.edgeSize;
+          // [e] Print progress and average temperature of the middle column
+          if (((float) (iteration) >= (parameters.nIterations - 1) / 10.0f * (float) printCounter)
+              && !parameters.batchMode) {
+            printf("Progress %ld%% (Average Temperature %.2f degrees)\n",
+                   (iteration + 1) * 100L / (parameters.nIterations),
+                   middleColAverageRoot);
+            ++printCounter;
+          }
+        }
+
+
+
+        //ZAPIS DO SUBORU
+        // Doporuceny zpusob ukladani dat do vystupniho souboru
+        // Tento kod by se vyskytoval v hlavni iteracni smycce (viz. sekvencni implementace)
+        // Pro paralelni I/O neni treba prenaset data do 0. procesu (na rozdil od serioveho I/O).
+        if (iteration % parameters.diskWriteIntensity == 0) {
+          if (!parameters.useParallelIO) {
+            // Serial I/O
+            // store data to root
+            // *** Zde posbirejte data do 0. procesu, ktery vytvarel vystupni soubor ***
+            //TODO: vyskusaj odstranit ci to bude fungovat
+            MPI_Barrier(MPI_COMM_WORLD);
+            cpuMatrices.gather();
+            // store time step in the output file if necessary
+            if (rank == 0 && file_id != H5I_INVALID_HID) {
+              StoreDataIntoFile(file_id,
+                                parResult,
+                                materialProperties.edgeSize,
+                                iteration / parameters.diskWriteIntensity,
+                                iteration);
+            }
+          } else {
+            // Parallel I/O
+            if (file_id != H5I_INVALID_HID) {
+              StoreDataIntoFileParallel(file_id,
+                                        newTemp,
+                                        materialProperties.edgeSize,
+                                        cpuMatrices.widthEdge + 4, cpuMatrices.heightEdge + 4,
+                                        (cpuMatrices.widthEdge) * cpuMatrices.myCol,
+                                        (cpuMatrices.heightEdge) * cpuMatrices.myRow,
+                                        iteration / parameters.diskWriteIntensity, iteration);
+            }
+          }
+        }
+
+        swap(newTemp, oldTemp);
+        //Need this because the cpuMatrices does have different pointers which are used to send data and recieve data
+        swap(cpuMatrices.localNewData, cpuMatrices.localData);
+
+      }//Koniec master pragma
     }
 
 
-
-    //ZAPIS DO SUBORU
-    // Doporuceny zpusob ukladani dat do vystupniho souboru
-    // Tento kod by se vyskytoval v hlavni iteracni smycce (viz. sekvencni implementace)
-    // Pro paralelni I/O neni treba prenaset data do 0. procesu (na rozdil od serioveho I/O).
-    if (iteration % parameters.diskWriteIntensity == 0) {
-      if (!parameters.useParallelIO) {
-        // Serial I/O
-        // store data to root
-        // *** Zde posbirejte data do 0. procesu, ktery vytvarel vystupni soubor ***
-        //TODO: vyskusaj odstranit ci to bude fungovat
-        MPI_Barrier(MPI_COMM_WORLD);
-        cpuMatrices.gather();
-        // store time step in the output file if necessary
-        if (rank == 0 && file_id != H5I_INVALID_HID) {
-          StoreDataIntoFile(file_id,
-                            parResult,
-                            materialProperties.edgeSize,
-                            iteration / parameters.diskWriteIntensity,
-                            iteration);
-        }
-      } else {
-        // Parallel I/O
-        if (file_id != H5I_INVALID_HID) {
-          StoreDataIntoFileParallel(file_id,
-                                    newTemp,
-                                    materialProperties.edgeSize,
-                                    cpuMatrices.widthEdge + 4, cpuMatrices.heightEdge + 4,
-                                    (cpuMatrices.widthEdge) * cpuMatrices.myCol,
-                                    (cpuMatrices.heightEdge) * cpuMatrices.myRow,
-                                    iteration / parameters.diskWriteIntensity, iteration);
-        }
-      }
-    }
-
-    swap(newTemp, oldTemp);
-    //Need this because the cpuMatrices does have different pointers which are used to send data and recieve data
-    swap(cpuMatrices.localNewData, cpuMatrices.localData);
-}//Koniec master pragma
-
-  }
-
-}//Koniec pragma parallel
+  }//Koniec pragma parallel
 
   cpuMatrices.gather();
 
   //Meranie
-  if (rank == 0){
+  if (rank == 0) {
     double totalTime = MPI_Wtime() - elapsedTime;
     // [7] Print final result
     if (!parameters.batchMode)
@@ -769,8 +779,3 @@ int main(int argc, char *argv[]) {
   return EXIT_SUCCESS;
 } // end of main
 //------------------------------------------------------------------------------
-
-
-
-
-

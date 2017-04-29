@@ -50,9 +50,9 @@ public:
     int numOfCpus;
 
     MPI_Datatype typeFloat, subArrFloatType;
-    MPI_Datatype localSubArrFloatType;
+    MPI_Datatype localTypeFloat, localSubArrFloatType;
     MPI_Datatype typeInt, subArrIntType;
-    MPI_Datatype localSubArrIntType;
+    MPI_Datatype localTypeInt, localSubArrIntType;
     MPI_Datatype localRows;
     MPI_Datatype localCols;
 
