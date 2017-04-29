@@ -665,7 +665,7 @@ void ParallelHeatDistribution(float *parResult,
   int endPointRow = (cpuMatrices.myRow == cpuMatrices.heightProcs - 1) ? cpuMatrices.heightEdge : 2 +
                                                                                                   cpuMatrices.heightEdge;
 
-#pragma omp parallel firstprivate(printCounter) private(iteration)
+#pragma omp parallel firstprivate(printCounter) private(iteration) private(middleColAverageRoot)
   {
 
     // [3] Init arrays
@@ -850,22 +850,26 @@ void ParallelHeatDistribution(float *parResult,
       }//Koniec master pragma
     }
 
+#pragma omp master
+    {
+      cpuMatrices.gather();
+
+      //Meranie
+      if (rank == 0) {
+        double totalTime = MPI_Wtime() - elapsedTime;
+        // [7] Print final result
+        if (!parameters.batchMode)
+          printf("\nExecution time of parallel version %.5f\n", totalTime);
+        else
+          printf("%s;%s;%f;%e;%e\n", outputFileName.c_str(), "par",
+                 middleColAverageRoot, totalTime,
+                 totalTime / parameters.nIterations);
+      }
+
+    }
 
   }//Koniec pragma parallel
 
-  cpuMatrices.gather();
-
-  //Meranie
-  if (rank == 0) {
-    double totalTime = MPI_Wtime() - elapsedTime;
-    // [7] Print final result
-    if (!parameters.batchMode)
-      printf("\nExecution time of parallel version %.5f\n", totalTime);
-    else
-      printf("%s;%s;%f;%e;%e\n", outputFileName.c_str(), "par",
-             middleColAverageRoot, totalTime,
-             totalTime / parameters.nIterations);
-  }
 
   // close the output file
   if (file_id != H5I_INVALID_HID) H5Fclose(file_id);
