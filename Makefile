@@ -46,7 +46,7 @@ TARGET_MIC=arc_proj02_mic
 
 all:	$(TARGET)
 
-$(TARGET): proj02.o MaterialProperties.o BasicRoutines.o CPUMatrices.o
+$(TARGET): proj02.o MaterialProperties.o BasicRoutines.o
 	$(CXX) $(LDFLAGS) $(LDFLAGS_NOMIC) $^ $(LIBS) -o $@
 
 %.o: %.cpp
