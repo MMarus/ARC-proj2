@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"  standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg 
+ width="600" height="480"
+ viewBox="0 0 600 480"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+
+<title>Gnuplot</title>
+<desc>Produced by GNUPLOT 5.0 patchlevel 3 </desc>
+
+<g id="gnuplot_canvas">
+
+<rect x="0" y="0" width="600" height="480" fill="none"/>
+<defs>
+
+	<circle id='gpDot' r='0.5' stroke-width='0.5'/>
+	<path id='gpPt0' stroke-width='0.244' stroke='currentColor' d='M-1,0 h2 M0,-1 v2'/>
+	<path id='gpPt1' stroke-width='0.244' stroke='currentColor' d='M-1,-1 L1,1 M1,-1 L-1,1'/>
+	<path id='gpPt2' stroke-width='0.244' stroke='currentColor' d='M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1'/>
+	<rect id='gpPt3' stroke-width='0.244' stroke='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<rect id='gpPt4' stroke-width='0.244' stroke='currentColor' fill='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<circle id='gpPt5' stroke-width='0.244' stroke='currentColor' cx='0' cy='0' r='1'/>
+	<use xlink:href='#gpPt5' id='gpPt6' fill='currentColor' stroke='none'/>
+	<path id='gpPt7' stroke-width='0.244' stroke='currentColor' d='M0,-1.33 L-1.33,0.67 L1.33,0.67 z'/>
+	<use xlink:href='#gpPt7' id='gpPt8' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt7' id='gpPt9' stroke='currentColor' transform='rotate(180)'/>
+	<use xlink:href='#gpPt9' id='gpPt10' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt3' id='gpPt11' stroke='currentColor' transform='rotate(45)'/>
+	<use xlink:href='#gpPt11' id='gpPt12' fill='currentColor' stroke='none'/>
+	<path id='gpPt13' stroke-width='0.244' stroke='currentColor' d='M0,1.330 L1.265,0.411 L0.782,-1.067 L-0.782,-1.076 L-1.265,0.411 z'/>
+	<use xlink:href='#gpPt13' id='gpPt14' fill='currentColor' stroke='none'/>
+	<filter id='textbox' filterUnits='objectBoundingBox' x='0' y='0' height='1' width='1'>
+	  <feFlood flood-color='white' flood-opacity='1' result='bgnd'/>
+	  <feComposite in='SourceGraphic' in2='bgnd' operator='atop'/>
+	</filter>
+	<filter id='greybox' filterUnits='objectBoundingBox' x='0' y='0' height='1' width='1'>
+	  <feFlood flood-color='lightgrey' flood-opacity='1' result='grey'/>
+	  <feComposite in='SourceGraphic' in2='grey' operator='atop'/>
+	</filter>
+</defs>
+<g fill="none" color="white" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,400.5 L391.5,400.5  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,400.5 L51.0,400.5  '/>	<g transform="translate(43.3,404.6)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >0</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,363.6 L391.5,363.6  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,363.6 L51.0,363.6  '/>	<g transform="translate(43.3,367.7)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >10</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,326.7 L391.5,326.7  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,326.7 L51.0,326.7  '/>	<g transform="translate(43.3,330.8)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >20</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,289.7 L391.5,289.7  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,289.7 L51.0,289.7  '/>	<g transform="translate(43.3,293.8)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >30</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,252.8 L391.5,252.8  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,252.8 L51.0,252.8  '/>	<g transform="translate(43.3,256.9)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >40</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,215.9 L391.5,215.9  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,215.9 L51.0,215.9  '/>	<g transform="translate(43.3,220.0)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >50</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,179.0 L391.5,179.0  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,179.0 L51.0,179.0  '/>	<g transform="translate(43.3,183.1)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >60</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,142.0 L391.5,142.0  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,142.0 L51.0,142.0  '/>	<g transform="translate(43.3,146.1)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >70</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,105.1 L391.5,105.1  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,105.1 L51.0,105.1  '/>	<g transform="translate(43.3,109.2)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >80</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,68.2 L391.5,68.2  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,68.2 L51.0,68.2  '/>	<g transform="translate(43.3,72.3)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="end">
+		<text><tspan font-family="Verdana" >90</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M59.2,400.5 L59.2,68.2  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,400.5 L59.2,408.7  '/>	<g transform="translate(59.2,429.2)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" > 1</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M98.4,400.5 L98.4,68.2  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M98.4,400.5 L98.4,408.7  '/>	<g transform="translate(98.4,429.2)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" > 16</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M140.3,400.5 L140.3,68.2  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M140.3,400.5 L140.3,408.7  '/>	<g transform="translate(140.3,429.2)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" > 32</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M224.0,400.5 L224.0,68.2  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M224.0,400.5 L224.0,408.7  '/>	<g transform="translate(224.0,429.2)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" > 64</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="rgb(128, 128, 128)" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.25" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)' stroke-dasharray='2,4' class="gridline"  d='M391.5,400.5 L391.5,68.2  '/></g>
+<g fill="none" color="gray" stroke="rgb(128, 128, 128)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M391.5,400.5 L391.5,408.7  '/>	<g transform="translate(391.5,429.2)" stroke="none" fill="rgb(128,128,128)" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" > 128</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(128, 128, 128)'  d='M59.2,68.2 L59.2,400.5 L391.5,400.5 M391.5,68.2 M59.2,68.2  '/></g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(16.1,234.4) rotate(270)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" >Speedup</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(225.3,453.8)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" >Number of cores</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(225.3,47.7)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="middle">
+		<text><tspan font-family="Verdana" >Speedup MPI</tspan></text>
+	</g>
+</g>
+	<g id="gnuplot_plot_1" ><title>2562 without I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,353.3)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >256</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> without I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(148,   0, 211)' stroke-dasharray='1.0,2.0'  d='M414.6,349.2 L453.6,349.2 M59.2,396.6 L98.4,372.5 L140.3,360.9 L224.0,354.0 L391.5,353.7  '/>	<use xlink:href='#gpPt7' transform='translate(59.2,396.6) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt7' transform='translate(98.4,372.5) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt7' transform='translate(140.3,360.9) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt7' transform='translate(224.0,354.0) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt7' transform='translate(391.5,353.7) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt7' transform='translate(434.1,349.2) scale(3.08)' color='rgb(148,   0, 211)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_2" ><title>2562 with seq I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,336.9)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >256</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with seq I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(148,   0, 211)' stroke-dasharray='10.0,5.0'  d='M414.6,332.8 L453.6,332.8 M59.2,396.8 L98.4,384.9 L140.3,382.4 L224.0,381.1 L391.5,380.9  '/>	<use xlink:href='#gpPt8' transform='translate(59.2,396.8) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(98.4,384.9) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(140.3,382.4) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(224.0,381.1) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(391.5,380.9) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(434.1,332.8) scale(3.08)' color='rgb(148,   0, 211)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_3" ><title>2562 with par I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,320.5)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >256</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with par I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(148,   0, 211)'  d='M414.6,316.4 L453.6,316.4 M59.2,396.9 L98.4,385.8 L140.3,394.9 L224.0,394.9 L391.5,393.8  '/>	<use xlink:href='#gpPt8' transform='translate(59.2,396.9) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(98.4,385.8) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(140.3,394.9) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(224.0,394.9) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(391.5,393.8) scale(3.08)' color='rgb(148,   0, 211)'/>
+	<use xlink:href='#gpPt8' transform='translate(434.1,316.4) scale(3.08)' color='rgb(148,   0, 211)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_4" ><title>5122 without I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,304.1)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >512</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> without I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(  0,   0, 255)' stroke-dasharray='1.0,2.0'  d='M414.6,300.0 L453.6,300.0 M59.2,396.6 L98.4,359.0 L140.3,328.7 L224.0,306.9 L391.5,283.4  '/>	<use xlink:href='#gpPt5' transform='translate(59.2,396.6) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt5' transform='translate(98.4,359.0) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt5' transform='translate(140.3,328.7) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt5' transform='translate(224.0,306.9) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt5' transform='translate(391.5,283.4) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt5' transform='translate(434.1,300.0) scale(3.08)' color='rgb(  0,   0, 255)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_5" ><title>5122 with seq I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,287.7)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >512</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with seq I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(  0,   0, 255)' stroke-dasharray='10.0,5.0'  d='M414.6,283.6 L453.6,283.6 M59.2,396.8 L98.4,372.4 L140.3,361.5 L224.0,356.2 L391.5,352.2  '/>	<use xlink:href='#gpPt6' transform='translate(59.2,396.8) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(98.4,372.4) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(140.3,361.5) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(224.0,356.2) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(391.5,352.2) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(434.1,283.6) scale(3.08)' color='rgb(  0,   0, 255)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_6" ><title>5122 with par I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,271.3)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >512</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with par I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(  0,   0, 255)'  d='M414.6,267.2 L453.6,267.2 M59.2,396.9 L98.4,375.1 L140.3,385.1 L224.0,382.5 L391.5,380.6  '/>	<use xlink:href='#gpPt6' transform='translate(59.2,396.9) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(98.4,375.1) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(140.3,385.1) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(224.0,382.5) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(391.5,380.6) scale(3.08)' color='rgb(  0,   0, 255)'/>
+	<use xlink:href='#gpPt6' transform='translate(434.1,267.2) scale(3.08)' color='rgb(  0,   0, 255)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_7" ><title>10242 without I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,254.9)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >1024</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> without I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(  0, 100,   0)' stroke-dasharray='1.0,2.0'  d='M414.6,250.8 L453.6,250.8 M59.2,396.7 L98.4,344.5 L140.3,302.7 L224.0,253.7 L391.5,204.4  '/>	<use xlink:href='#gpPt11' transform='translate(59.2,396.7) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt11' transform='translate(98.4,344.5) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt11' transform='translate(140.3,302.7) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt11' transform='translate(224.0,253.7) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt11' transform='translate(391.5,204.4) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt11' transform='translate(434.1,250.8) scale(3.08)' color='rgb(  0, 100,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_8" ><title>10242 with seq I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,238.5)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >1024</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with seq I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(  0, 100,   0)' stroke-dasharray='10.0,5.0'  d='M414.6,234.4 L453.6,234.4 M59.2,396.8 L98.4,363.0 L140.3,348.4 L224.0,337.9 L391.5,330.0  '/>	<use xlink:href='#gpPt12' transform='translate(59.2,396.8) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(98.4,363.0) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(140.3,348.4) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(224.0,337.9) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(391.5,330.0) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(434.1,234.4) scale(3.08)' color='rgb(  0, 100,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_9" ><title>10242 with par I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,222.1)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >1024</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with par I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(  0, 100,   0)'  d='M414.6,218.0 L453.6,218.0 M59.2,396.9 L98.4,364.8 L140.3,347.9 L224.0,322.3 L391.5,299.0  '/>	<use xlink:href='#gpPt12' transform='translate(59.2,396.9) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(98.4,364.8) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(140.3,347.9) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(224.0,322.3) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(391.5,299.0) scale(3.08)' color='rgb(  0, 100,   0)'/>
+	<use xlink:href='#gpPt12' transform='translate(434.1,218.0) scale(3.08)' color='rgb(  0, 100,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_10" ><title>20482 without I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,205.7)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >2048</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> without I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(255, 140,   0)' stroke-dasharray='1.0,2.0'  d='M414.6,201.6 L453.6,201.6 M59.2,396.7 L98.4,341.1 L140.3,289.3 L224.0,225.1 L391.5,173.6  '/>	<use xlink:href='#gpPt3' transform='translate(59.2,396.7) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt3' transform='translate(98.4,341.1) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt3' transform='translate(140.3,289.3) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt3' transform='translate(224.0,225.1) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt3' transform='translate(391.5,173.6) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt3' transform='translate(434.1,201.6) scale(3.08)' color='rgb(255, 140,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_11" ><title>20482 with seq I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,189.3)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >2048</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with seq I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(255, 140,   0)' stroke-dasharray='10.0,5.0'  d='M414.6,185.2 L453.6,185.2 M59.2,396.8 L98.4,360.0 L140.3,341.6 L224.0,326.6 L391.5,320.8  '/>	<use xlink:href='#gpPt4' transform='translate(59.2,396.8) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(98.4,360.0) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(140.3,341.6) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(224.0,326.6) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(391.5,320.8) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(434.1,185.2) scale(3.08)' color='rgb(255, 140,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_12" ><title>20482 with par I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,172.9)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >2048</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with par I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(255, 140,   0)'  d='M414.6,168.8 L453.6,168.8 M59.2,396.8 L98.4,358.9 L140.3,319.2 L224.0,250.7 L391.5,128.4  '/>	<use xlink:href='#gpPt4' transform='translate(59.2,396.8) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(98.4,358.9) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(140.3,319.2) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(224.0,250.7) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(391.5,128.4) scale(3.08)' color='rgb(255, 140,   0)'/>
+	<use xlink:href='#gpPt4' transform='translate(434.1,168.8) scale(3.08)' color='rgb(255, 140,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_13" ><title>40962 without I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,156.5)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >4096</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> without I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(255,   0,   0)' stroke-dasharray='1.0,2.0'  d='M414.6,152.4 L453.6,152.4 M59.2,396.1 L98.4,349.0 L140.3,302.5 L224.0,196.2 L391.5,107.3  '/>	<use xlink:href='#gpPt9' transform='translate(59.2,396.1) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt9' transform='translate(98.4,349.0) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt9' transform='translate(140.3,302.5) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt9' transform='translate(224.0,196.2) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt9' transform='translate(391.5,107.3) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt9' transform='translate(434.1,152.4) scale(3.08)' color='rgb(255,   0,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_14" ><title>40962 with seq I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,140.1)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >4096</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with seq I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(255,   0,   0)' stroke-dasharray='10.0,5.0'  d='M414.6,136.0 L453.6,136.0 M59.2,396.8 L98.4,362.5 L140.3,342.6 L224.0,316.9 L391.5,305.6  '/>	<use xlink:href='#gpPt10' transform='translate(59.2,396.8) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(98.4,362.5) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(140.3,342.6) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(224.0,316.9) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(391.5,305.6) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(434.1,136.0) scale(3.08)' color='rgb(255,   0,   0)'/>
+</g>
+	</g>
+	<g id="gnuplot_plot_15" ><title>40962 with par I/O</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(461.3,123.7)" stroke="none" fill="black" font-family="Verdana" font-size="11.00"  text-anchor="start">
+		<text><tspan font-family="Verdana" >4096</tspan><tspan font-family="Verdana"  font-size="8.8" dy="-5.50px">2</tspan><tspan font-family="Verdana"  font-size="11.0" dy="5.50px"> with par I/O</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='rgb(255,   0,   0)'  d='M414.6,119.6 L453.6,119.6 M59.2,396.7 L98.4,361.6 L140.3,325.1 L224.0,228.4 L391.5,93.3  '/>	<use xlink:href='#gpPt10' transform='translate(59.2,396.7) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(98.4,361.6) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(140.3,325.1) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(224.0,228.4) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(391.5,93.3) scale(3.08)' color='rgb(255,   0,   0)'/>
+	<use xlink:href='#gpPt10' transform='translate(434.1,119.6) scale(3.08)' color='rgb(255,   0,   0)'/>
+</g>
+	</g>
+<g fill="none" color="white" stroke="rgb(255,   0,   0)" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="black" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+</g>
+</svg>
+

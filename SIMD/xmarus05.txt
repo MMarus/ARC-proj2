@@ -1,0 +1,19 @@
+1.
+Parlelny I/O sa hodi hlavne ked simulacia bezi na vela MPI procesoch a velkych domenach s velkymi poctami iteracii.
+Sekvencny I/O je vyhodne pre male domeny s malymi poctami MPI procesov.
+
+2.
+lfs setstripe -s 1M -c 16 /scratch/temp/$USER
+
+3.
+MPI verzia by mala byt pomalsia, pretoze s vacsim poctom MPI procesov narasta potrebna komunikacia medzi procesmi,
+ktora je pomalsia ako pri OpenMP preto by mala byt Hybridna verzia rychlejsia, kedze pouziva OpenMP vlakna.
+Avsak, v paralelnej verzii je pouzite prekrytie vepoctu a prenosu sprav pomocu MPI preto MPI verzia nieje o moc horsia
+ako hybridna verzia s OpenMP.
+
+Po odstraneni #pragma omp simd bola efektivita na grafoch lepsia a aj rozdiel bol znatelnejsi medzi hybridnou a MPI verziou.
+Je to kvoli tomu, ze uz pri behu s 1 CPU sa vektorizaciou velmi zrychlil beh programu a tym nieje az tak dobre efektivita vidiet na grafoch.
+V pripade pouzitia vektorizacie beh trval 36 minut dokopy a bez vektorizacie cc 80minut.
+
+Verzia prveho projektu bezala len na 1 uzle s max 24 vlaknami, preto jej efektivita, zrychlenie a skalovanie
+boli velmi dobre od 1 po 24 vlakien avsak by nebolo mozne ju pustit na viacero uzloch co je nevyhoda oproti MPI verzii.
