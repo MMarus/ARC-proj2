@@ -6,5 +6,5 @@ MPI and openMP libraries.
 
 
 ### Assessment remarks:
-xmarus05 20b
+xmarus05 20/20 points
 - extremly good performance in MPI vrsion and in openMPI + openMP version as well
